@@ -49,8 +49,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
   view = {
     init: function(initData) {
       this.initMap(initData.coordinates);
-      this.addMarkers(initData.restaurants);
-
+      this.markerArray = this.createMarkers(initData.restaurants);
+      this.addMarkersToMap(this.markerArray);
       this.list = document.getElementById('restaurants-list');
       this.restaurantHTMLArray = this.initRestaurantHTMLArray(initData.restaurants);
       this.addRestaurantsToDOM(this.restaurantHTMLArray);
@@ -70,26 +70,19 @@ window.addEventListener('DOMContentLoaded', (event) => {
         id: 'mapbox.streets'
       }).addTo(this.newMap);
     },
-    addMarkers(restaurants) {
-      restaurants.forEach((restaurant) => {
-          const marker = view.addMarker(restaurant);
-          view.addMarkerClickHandler(marker);
-      });
+    createMarkers: function(restaurants) {
+      return restaurants.map((restaurant) =>
+        new L.marker([restaurant.latlng.lat, restaurant.latlng.lng],
+          {
+            title: restaurant.name,
+            alt: restaurant.name,
+            url: restaurant.restaurantURL,
+            id: restaurant.id,
+          }).on('click', this.markerClickHandler)
+        )
     },
-    addMarker: function(restaurant) {
-      // https://leafletjs.com/reference-1.3.0.html#marker
-      const marker = new L.marker([restaurant.latlng.lat, restaurant.latlng.lng],
-        {
-          title: restaurant.name,
-          alt: restaurant.name,
-          url: restaurant.restaurantURL,
-          id: restaurant.id,
-        })
-      marker.addTo(this.newMap);
-      return marker;
-    },
-    addMarkerClickHandler: function(marker) {
-      marker.on('click', this.markerClickHandler);
+    addMarkersToMap: function(markers) {
+      markers.forEach(marker => marker.addTo(this.newMap))
     },
     markerClickHandler: (event) => {
       console.log('id is ' + event.sourceTarget.options.id);
