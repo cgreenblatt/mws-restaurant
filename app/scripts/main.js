@@ -6,14 +6,16 @@ window.addEventListener('DOMContentLoaded', (event) => {
       const port = 9000 // Change this to your server port
       return `http://localhost:${port}/data/restaurants.json`;
     },
-    getMapCenterCoords: function() {
-      return {map: {center: [40.722216, -73.987501]}}
-    },
-    getRestaurantURL: function(id) {
-      return (`./restaurant.html?id=${id}`);
-    },
+    getMapCenterCoords: () => (
+      {
+        map: {
+          center: [40.722216, -73.987501]
+        }
+      }),
+    getRestaurantURL: (id) => `./restaurant.html?id=${id}`,
+    getImageURLs: (id) => ['-350-small', '-700-medium', '-1050-large', '-1400-xlarge'].map(size => `/images/${id}${size}.jpg`),
     initData: function() {
-      return fetch(model.getURL())
+      return fetch(this.getURL())
         .then(response => {
           if (!response.ok)
             throw(new Error(`Error: ${response.statusText}`));
@@ -22,13 +24,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
         .then((json) => {
           this.data = json;
           this.data.restaurants.forEach((restaurant) => {
-            restaurant.url = model.getRestaurantURL(restaurant.id);
+            restaurant.restaurantURL = model.getRestaurantURL(restaurant.id);
+            restaurant.imageURLs = model.getImageURLs(restaurant.id);
           });
-          console.log(this.data);
           return this.data.restaurants;
         })
         .catch(error => {
-          console.log('opps ' + error);
+          console.log('oops ' + error);
         });
     }
   }
@@ -48,6 +50,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
     init: function(initData) {
       this.initMap(initData.coordinates);
       this.addMarkers(initData.restaurants);
+
+      this.list = document.getElementById('restaurants-list');
+      this.restaurantHTMLArray = this.initRestaurantHTMLArray(initData.restaurants);
+      this.addRestaurantsToDOM(this.restaurantHTMLArray);
     },
     initMap: function(init) {
       this.newMap = L.map('map', {
@@ -76,17 +82,42 @@ window.addEventListener('DOMContentLoaded', (event) => {
         {
           title: restaurant.name,
           alt: restaurant.name,
-          url: restaurant.url,
+          url: restaurant.restaurantURL,
           id: restaurant.id,
         })
-      marker.addTo(view.newMap);
+      marker.addTo(this.newMap);
       return marker;
     },
-    addMarkerClickHandler: (marker) => {
-      marker.on('click', view.markerClickHandler);
+    addMarkerClickHandler: function(marker) {
+      marker.on('click', this.markerClickHandler);
     },
     markerClickHandler: (event) => {
       console.log('id is ' + event.sourceTarget.options.id);
+    },
+    getImageHTML: function (restaurant) {
+      return `<img src="${restaurant.imageURLs[1]}" srcset="${this.getImageSrcset(restaurant)}" sizes="${this.getImageSizes()}" alt="${restaurant.name}" class="restaurant-img">\n`
+    },
+    getImageSrcset: restaurant => restaurant.imageURLs.map(url => `${url} ${url.split('-')[1]}w`).join(', '),
+    getImageSizes: () =>
+        '(min-width: 700px) 45.5vw, ' +
+        '(min-width: 1050px) 29.333vw, ' +
+        '(min-width: 1400px) 21.25vw, ' +
+        '(min-width: 1750px) 16.4vw',
+    getRestaurantHTML: function(restaurant) {
+      return `
+      <li class="restaurant-card" />
+        ${this.getImageHTML(restaurant)}
+        <h3>${restaurant.name}</h3>
+        <h4>${restaurant.neighborhood}</h4>
+        <h4>${restaurant.address}</h4>
+        <a href="${restaurant.restaurantURL}" aria-label="${restaurant.name} details">View Details</a>
+      </li>`
+    },
+    initRestaurantHTMLArray: function(restaurants) {
+      return restaurants.map(restaurant => this.getRestaurantHTML(restaurant))
+    },
+    addRestaurantsToDOM: function(restaurantsHTMLArray) {
+      this.list.innerHTML = restaurantsHTMLArray.join('');
     }
   }
 
