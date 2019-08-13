@@ -38,12 +38,47 @@ window.addEventListener('DOMContentLoaded', (event) => {
   controller = {
     init: function() {
       model.initData().then((data) => {
+        this.restaurants = data;
         view.init({
           coordinates: model.getMapCenterCoords(),
           restaurants: data,
+          filters: {
+            cuisines: this.getFilterOptions('cuisine_type'),
+            neighborhoods: this.getFilterOptions('neighborhood'),
+          }
         });
       });
-    }
+    },
+    getFilterOptions: function(filterKey) {
+      const values = this.getValuesFor(filterKey);
+      return {
+        filterKey,
+        values,
+        handler: this.getFilterSelectionHandler(values).bind(this),
+      }
+    },
+    getValuesFor: function(filterKey) {
+      const reducer = (acc, restaurant) => {
+        const value = restaurant[filterKey];
+        if (acc[value]) {
+          acc[value].push(restaurant.id - 1);
+        } else {
+          acc[value] = [restaurant.id -1];
+        }
+        return acc;
+      }
+      let acc = { All: [] };
+      for (let i = 0; i < this.restaurants.length; i++) {
+        acc.All.push(i);
+      }
+      const values = this.restaurants.reduce(reducer, acc);
+      return values;
+    },
+    getFilterSelectionHandler: function(values) {
+      return function(value) {
+        view.updateRestaurantList(values[value]);
+      }
+    },
   };
 
   view = {
@@ -51,9 +86,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
       this.initMap(initData.coordinates);
       this.markerArray = this.createMarkers(initData.restaurants);
       this.addMarkersToMap(this.markerArray);
-      this.list = document.getElementById('restaurants-list');
-      this.restaurantHTMLArray = this.initRestaurantHTMLArray(initData.restaurants);
-      this.addRestaurantsToDOM(this.restaurantHTMLArray);
+      this.listContainer = document.getElementById('restaraunts-container');
+      //this.restaurantHTMLArray = this.initRestaurantHTMLArray(initData.restaurants);
+      this.restaurantElementsArray = this.initRestaurantElementsArray(initData.restaurants);
+      //this.addRestaurantsToDOM(this.restaurantHTMLArray);
+      this.currentRestaurantUL = this.getRestaurantListElement(this.restaurantElementsArray);
+      this.addRestaurantListToDom(this.currentRestaurantUL);
+      this.addFilter(initData.filters.cuisines, 'All Cuisines');
     },
     initMap: function(init) {
       this.newMap = L.map('map', {
@@ -87,6 +126,15 @@ window.addEventListener('DOMContentLoaded', (event) => {
     markerClickHandler: (event) => {
       console.log('id is ' + event.sourceTarget.options.id);
     },
+    getImageElement: function(restaurant) {
+      const img = document.createElement('img');
+      img.alt = restaurant.name;
+      img.src = restaurant.imageURLs[1];
+      img.srcset = this.getImageSrcset(restaurant);
+      img.sizes = this.getImageSizes();
+      img.className = 'restaurant-img';
+      return img;
+    },
     getImageHTML: function (restaurant) {
       return `<img src="${restaurant.imageURLs[1]}" srcset="${this.getImageSrcset(restaurant)}" sizes="${this.getImageSizes()}" alt="${restaurant.name}" class="restaurant-img">\n`
     },
@@ -96,7 +144,26 @@ window.addEventListener('DOMContentLoaded', (event) => {
         '(min-width: 1050px) 29.333vw, ' +
         '(min-width: 1400px) 21.25vw, ' +
         '(min-width: 1750px) 16.4vw',
-    getRestaurantHTML: function(restaurant) {
+    getRestaurantLiElement: function(restaurant) {
+      const name = document.createElement('h3');
+      name.textContent = restaurant.name;
+      const neighborhood = document.createElement('h4');
+      neighborhood.textContent = restaurant.neighborhood;
+      const address = document.createElement('h4');
+      address.textContent = restaurant.address;
+      const link = document.createElement('a');
+      link.href = restaurant.restaurantURL;
+      link.textContent = 'View Details';
+      const li = document.createElement('li');
+      li.className = 'restaurant-card';
+      li.appendChild(this.getImageElement(restaurant));
+      li.appendChild(name);
+      li.appendChild(neighborhood);
+      li.appendChild(address);
+      li.appendChild(link);
+      return li;
+    },
+    /*getRestaurantHTML: function(restaurant) {
       return `
       <li class="restaurant-card" />
         ${this.getImageHTML(restaurant)}
@@ -108,31 +175,50 @@ window.addEventListener('DOMContentLoaded', (event) => {
     },
     initRestaurantHTMLArray: function(restaurants) {
       return restaurants.map(restaurant => this.getRestaurantHTML(restaurant))
+    },*/
+    initRestaurantElementsArray: function(restaurants) {
+      return restaurants.map(restaurant => this.getRestaurantLiElement(restaurant))
     },
-    addRestaurantsToDOM: function(restaurantsHTMLArray) {
+    /*addRestaurantsToDOM: function(restaurantsHTMLArray) {
       this.list.innerHTML = restaurantsHTMLArray.join('');
-    }
+    },*/
+    getRestaurantListElement: function(restaurantElementsArray) {
+      // create new list element
+      const list = document.createElement('ul');
+      this.list = list;
+      list.id = 'restaurants-list';
+
+      // add all <li> restaurant elements to new list
+      restaurantElementsArray.forEach((element) => {
+        list.appendChild(element);
+      });
+
+      // return new <ul> element with all restaurant <li>'s
+      return list;
+      //this.listContainer.appendChild(list);
+    },
+    addRestaurantListToDom: function(ulElement) {
+      this.listContainer.appendChild(ulElement);
+    },
+    changeDOMRestaurantList: function(newULelement) {
+      this.listContainer.replaceChild(newULelement, this.currentRestaurantUL);
+      this.currentRestaurantUL = newULelement;
+    },
+    updateRestaurantList: function(idArray) {
+      const filteredElements = idArray.map(id => this.restaurantElementsArray[id]);
+      const newUL = this.getRestaurantListElement(filteredElements);
+      this.changeDOMRestaurantList(newUL);
+    },
+    addFilter: function(filterOptions, label) {
+      this.comboBox = new ComboBox(
+        {
+          parentId: 'new-filter-options',
+          buttonLabel: label,
+          callback: filterOptions.handler,
+        });
+      this.comboBox.setListValues(Object.keys(filterOptions.values));
+    },
   }
 
-
-/**
- * @description: Initialize leafconst map, called from HTML.
- */
-/*const initMap = () => {
-  let newMap;
-  newMap = L.map('map', {
-        center: [40.722216, -73.987501],
-        zoom: 12,
-        scrollWheelZoom: false
-      });
-  L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_token={mapboxToken}', {
-    mapboxToken: 'pk.eyJ1Ijoic3BhcmtwdWciLCJhIjoiY2pqaGphZmZrMHpjZzNxcXN6NnFnODV1MCJ9.mguQAJA30rXv2JkSHo6Ntg',
-    maxZoom: 18,
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-      '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-      'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-    id: 'mapbox.streets'
-  }).addTo(newMap);
-}*/
-controller.init();
+  controller.init();
 });
