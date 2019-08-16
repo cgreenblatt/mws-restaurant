@@ -32,30 +32,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
         .catch(error => {
           console.log('oops ' + error);
         });
-    }
-  }
-
-  controller = {
-    init: function() {
-      model.initData().then((data) => {
-        this.restaurants = data;
-        view.init({
-          coordinates: model.getMapCenterCoords(),
-          restaurants: data,
-          filters: {
-            cuisines: this.getFilterOptions('cuisine_type'),
-            neighborhoods: this.getFilterOptions('neighborhood'),
-          }
-        });
-      });
-    },
-    getFilterOptions: function(filterKey) {
-      const values = this.getValuesFor(filterKey);
-      return {
-        filterKey,
-        values,
-        handler: this.getFilterSelectionHandler(values).bind(this),
-      }
     },
     getValuesFor: function(filterKey) {
       const reducer = (acc, restaurant) => {
@@ -68,11 +44,35 @@ window.addEventListener('DOMContentLoaded', (event) => {
         return acc;
       }
       let acc = { All: [] };
-      for (let i = 0; i < this.restaurants.length; i++) {
+      for (let i = 0; i < this.data.restaurants.length; i++) {
         acc.All.push(i);
       }
-      const values = this.restaurants.reduce(reducer, acc);
+      const values = this.data.restaurants.reduce(reducer, acc);
       return values;
+    },
+  }
+
+  controller = {
+    init: function() {
+      model.initData().then((data) => {
+        //this.restaurants = data;
+        view.init({
+          coordinates: model.getMapCenterCoords(),
+          restaurants: data,
+          filters: {
+            cuisines: this.getFilterOptions('cuisine_type'),
+            neighborhoods: this.getFilterOptions('neighborhood'),
+          }
+        });
+      });
+    },
+    getFilterOptions: function(filterKey) {
+      const values = model.getValuesFor(filterKey);
+      return {
+        filterKey,
+        values,
+        handler: this.getFilterSelectionHandler(values).bind(this),
+      }
     },
     getFilterSelectionHandler: function(values) {
       return function(value) {
@@ -92,7 +92,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
       //this.addRestaurantsToDOM(this.restaurantHTMLArray);
       this.currentRestaurantUL = this.getRestaurantListElement(this.restaurantElementsArray);
       this.addRestaurantListToDom(this.currentRestaurantUL);
-      this.addFilter(initData.filters.cuisines, 'All Cuisines');
+      this.addFilter(initData.filters.cuisines, 'Cuisines');
     },
     initMap: function(init) {
       this.newMap = L.map('map', {
@@ -210,13 +210,14 @@ window.addEventListener('DOMContentLoaded', (event) => {
       this.changeDOMRestaurantList(newUL);
     },
     addFilter: function(filterOptions, label) {
-      this.comboBox = new ComboBox(
+      this.comboBox = makeListbox(
         {
+          id: 'cuisines',
           parentId: 'new-filter-options',
-          buttonLabel: label,
+          label: label,
           callback: filterOptions.handler,
+          values: Object.keys(filterOptions.values),
         });
-      this.comboBox.setListValues(Object.keys(filterOptions.values));
     },
   }
 
