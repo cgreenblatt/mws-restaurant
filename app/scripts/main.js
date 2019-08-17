@@ -103,7 +103,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
       this.initMap(initData.coordinates);
       this.markerArray = this.createMarkers(initData.restaurants);
       this.addMarkersToMap(this.markerArray);
-      this.listContainer = document.getElementById('restaraunts-container');
+      this.listContainer = document.getElementById('restaurants-container');
       //this.restaurantHTMLArray = this.initRestaurantHTMLArray(initData.restaurants);
       this.restaurantElementsArray = this.initRestaurantElementsArray(initData.restaurants);
       //this.addRestaurantsToDOM(this.restaurantHTMLArray);

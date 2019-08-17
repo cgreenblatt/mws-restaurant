@@ -95,6 +95,10 @@ h1 {
   z-index: 0;
 }
 
+#restaurants-container {
+  margin: 0 10px;
+}
+
 /* ====================== Restaurant Listing ====================== */
 #restaurants-list {
   list-style: outside none none;
@@ -148,7 +152,6 @@ h1 {
   grid-template-rows: 2;
   grid-template-columns: 1;
   width: 100%;
-  padding: 10px;
 }
 
 .listbox-label {
