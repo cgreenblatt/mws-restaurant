@@ -52,14 +52,25 @@ window.addEventListener('DOMContentLoaded', (event) => {
       this.data.filters[filterKey] = values;
       return values;
     },
-    filterRestaurants: function({cuisine_type, neighborhood}) {
-      const cuisineIndexes = this.data.filters.cuisine_type[cuisine_type];
-      const neighborhoodIndexes = this.data.filters.neighborhood[neighborhood];
-      const intersection = cuisineIndexes.filter(index => neighborhoodIndexes.includes(index));
-      return intersection;
+    getFilterIndexes(filterValuesSelected, filterKey) {
+      const selectedValue = filterValuesSelected[filterKey];
+      const filterValuesObject = this.data.filters[filterKey];
+      const filterIndexes = filterValuesObject[selectedValue];
+      return filterIndexes;
+    },
+    getIntersection: function(array1, array2) {
+        return array2.filter(value => array1.includes(value));
+    },
+    filterRestaurants: function(filterValuesSelected) {
+      const filterKeys = Object.keys(filterValuesSelected);
+      let intersectionIndexes = this.getFilterIndexes(filterValuesSelected, filterKeys[0]);
+      for (let i = 1; i < filterKeys.length; i++) {
+        const nextFilterIndexes = this.getFilterIndexes(filterValuesSelected, filterKeys[i]);
+        intersectionIndexes = this.getIntersection(intersectionIndexes, nextFilterIndexes);
+      }
+      return intersectionIndexes;
     }
   }
-
   controller = {
     init: function() {
       model.initData().then((data) => {
