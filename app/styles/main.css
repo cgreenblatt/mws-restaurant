@@ -142,3 +142,52 @@ h1 {
   width: 100%;
   border-bottom-right-radius: 18px;
 }
+
+.listbox-container {
+  display: grid;
+  grid-template-rows: 2;
+  grid-template-columns: 1;
+  width: 100%;
+  padding: 10px;
+}
+
+.listbox-label {
+  padding: 8px 0;
+}
+
+.listbox-button {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.listbox-button:hover {
+  cursor: pointer;
+}
+
+.listbox-ul-container {
+  position: relative;
+}
+
+.listbox-ul {
+  position: absolute;
+  top: 5px;
+  width: 100%;
+  z-index: 10;
+  background-color: #FFF;
+  padding: 10px;
+  list-style: none;
+  border: solid 1px gray;
+  border-radius: 5px;
+}
+
+.listbox-li:hover {
+  cursor: pointer;
+}
+
+.hidden {
+  display: none;
+  opacity: 0;
+}

@@ -118,7 +118,7 @@ class List {
 
   clickHandler(e) {
     this.hide();
-    this.notifyListbox(e, 'selectCurrent', e.target.innerText);
+    this.notifyListbox(e, 'selectCurrent', e.target.textContent);
   }
 
   keydownHandler(e) {
@@ -220,6 +220,7 @@ class Listbox {
     const parent = document.getElementById(parentId);
     if (!parent) return;
     const divEl = document.createElement('div');
+    this.id = id;
     divEl.classList.add('listbox-container');
     divEl.id = id;
     const labelEl = document.createElement('label');
@@ -253,7 +254,7 @@ class Listbox {
         this.button.setText(text);
         break;
       case 'selectCurrent' :
-        this.callback(text);
+        this.callback(this.id, text);
         this.button.setFocus();
         this.button.toggleExpanded();
         break;

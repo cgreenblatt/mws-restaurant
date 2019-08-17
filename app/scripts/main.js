@@ -23,6 +23,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
         })
         .then((json) => {
           this.data = json;
+          this.data.filters = {};
           this.data.restaurants.forEach((restaurant) => {
             restaurant.restaurantURL = model.getRestaurantURL(restaurant.id);
             restaurant.imageURLs = model.getImageURLs(restaurant.id);
@@ -48,8 +49,15 @@ window.addEventListener('DOMContentLoaded', (event) => {
         acc.All.push(i);
       }
       const values = this.data.restaurants.reduce(reducer, acc);
+      this.data.filters[filterKey] = values;
       return values;
     },
+    filterRestaurants: function({cuisine_type, neighborhood}) {
+      const cuisineIndexes = this.data.filters.cuisine_type[cuisine_type];
+      const neighborhoodIndexes = this.data.filters.neighborhood[neighborhood];
+      const intersection = cuisineIndexes.filter(index => neighborhoodIndexes.includes(index));
+      return intersection;
+    }
   }
 
   controller = {
@@ -71,13 +79,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
       return {
         filterKey,
         values,
-        handler: this.getFilterSelectionHandler(values).bind(this),
       }
     },
-    getFilterSelectionHandler: function(values) {
-      return function(value) {
-        view.updateRestaurantList(values[value]);
-      }
+    filterRestaurants: function(filterValues) {
+      const list = model.filterRestaurants(filterValues);
+      view.updateRestaurantList(list);
     },
   };
 
@@ -91,8 +97,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
       this.restaurantElementsArray = this.initRestaurantElementsArray(initData.restaurants);
       //this.addRestaurantsToDOM(this.restaurantHTMLArray);
       this.currentRestaurantUL = this.getRestaurantListElement(this.restaurantElementsArray);
+      this.handleFilterSelection = this.handleFilterSelection.bind(this);
       this.addRestaurantListToDom(this.currentRestaurantUL);
+      this.filterValues = {};
       this.addFilter(initData.filters.cuisines, 'Cuisines');
+      this.addFilter(initData.filters.neighborhoods, 'Neighborhoods');
     },
     initMap: function(init) {
       this.newMap = L.map('map', {
@@ -210,15 +219,20 @@ window.addEventListener('DOMContentLoaded', (event) => {
       this.changeDOMRestaurantList(newUL);
     },
     addFilter: function(filterOptions, label) {
+      this.filterValues[filterOptions.filterKey] = 'All';
       this.comboBox = makeListbox(
         {
-          id: 'cuisines',
+          id: filterOptions.filterKey,
           parentId: 'new-filter-options',
           label: label,
-          callback: filterOptions.handler,
+          callback: this.handleFilterSelection,
           values: Object.keys(filterOptions.values),
         });
     },
+    handleFilterSelection: function(filterKey, value) {
+      this.filterValues[filterKey] = value;
+      controller.filterRestaurants(this.filterValues);
+    }
   }
 
   controller.init();
