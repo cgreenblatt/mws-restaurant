@@ -1,199 +1,185 @@
-const makeListbox = (function() {
-
-  'use strict';
+const makeListbox = (function () {
 
   // Define values for keycodes
-  const VK_ENTER      = 13;
-  const VK_ESC        = 27;
-  const VK_SPACE      = 32;
-  const VK_LEFT       = 37;
-  const VK_UP         = 38;
-  const VK_RIGHT      = 39;
-  const VK_DOWN       = 40;
-  let LAST_ID = 0;
+  const VK_TAB = 9;
+  const VK_ENTER = 13;
+  const VK_ESC = 27;
+  const VK_UP = 38;
+  const VK_DOWN = 40;
 
-class Button {
-  constructor(notifyListbox, buttonLabel, listboxId, labelId) {
-    this.notifyListbox = notifyListbox;
-    this.buttonEl = document.createElement('button');
-    this.buttonEl.innerHTML = 'All <i class="fas fa-angle-down"></i>';
-    this.buttonEl.id = `${listboxId}-button`;
-    this.buttonEl.className = 'listbox-button';
-    this.buttonEl.setAttribute('aria-haspopup', 'listbox');
-    this.buttonEl.addEventListener('click', this.clickHandler.bind(this));
-    this.buttonEl.addEventListener('keydown', this.keydownHandler.bind(this));
-    this.buttonEl.setAttribute('aria-labelledby', labelId);
-    this.expanded = false;
-  }
+  class Button {
+    constructor(buttonLabel, listboxId, labelId, clickHandler, keydownHandler) {
+      this.buttonEl = document.createElement('button');
+      this.buttonEl.innerHTML = '<i class="fas fa-angle-down"></i>';
+      this.buttonEl.id = `${listboxId}-button`;
+      this.buttonEl.className = 'listbox-button';
+      this.buttonEl.setAttribute('aria-haspopup', 'listbox');
+      this.buttonEl.setAttribute('aria-expanded', false);
+      this.buttonEl.addEventListener('click', clickHandler);
+      this.buttonEl.addEventListener('keydown', keydownHandler);
+      this.buttonEl.setAttribute('aria-labelledby', labelId);
+      this.expanded = false;
+    }
 
-  append(parent) {
-    parent.appendChild(this.buttonEl);
-  }
+    getExpanded() {
+      return this.expanded;
+    }
 
-  keydownHandler(e) {
-    switch (e.keyCode) {
-      case VK_DOWN:
-      case VK_ENTER:
-        this.toggleExpanded();
-        this.notifyListbox(e);
-        break;
-      default:
+    getId() {
+      return this.buttonEl.id;
+    }
+
+    append(parent) {
+      parent.appendChild(this.buttonEl);
+    }
+
+    handleExpand() {
+      this.buttonEl.setAttribute('aria-expanded', true);
+      this.setChevronUp();
+    }
+
+    handleCollapse() {
+      this.buttonEl.setAttribute('aria-expanded', false);
+      this.setChevronDown();
+    }
+
+    setAriaActiveDescendant(activeDescendant) {
+      this.buttonEl.setAttribute('aria-activedescendant', activeDescendant.id);
+      this.buttonEl.setAttribute('aria-owns', activeDescendant.id);
+      const up = this.buttonEl.innerHTML.includes('fas fa-angle-up');
+      this.buttonEl.innerHTML = `${activeDescendant.textContent} <i class='fas fa-angle-${up ? 'up' : 'down'}'></i>`;
+    }
+
+    setFocus() {
+      this.buttonEl.focus();
+      this.handleCollapse();
+    }
+
+    setChevronUp() {
+      this.buttonEl.innerHTML = `${this.buttonEl.textContent} <i class="fas fa-angle-up"></i>`;
+    }
+
+    setChevronDown() {
+      this.buttonEl.innerHTML = `${this.buttonEl.textContent} <i class="fas fa-angle-down"></i>`;
     }
   }
 
-  clickHandler(e) {
-    this.toggleExpanded();
-    this.notifyListbox(e);
-  }
-
-  toggleExpanded() {
-    this.expanded = !this.expanded;
-    this.buttonEl.setAttribute('aria-expanded', this.expanded);
-    if (this.expanded) {
-      this.buttonEl.innerHTML = `${this.buttonEl.innerText} <i class="fas fa-angle-up"></i>`;
-    } else {
-      this.buttonEl.innerHTML = `${this.buttonEl.innerText} <i class="fas fa-angle-down"></i>`;
-    }
-  }
-
-  setText(text) {
-    this.buttonEl.innerHTML = `${text} <i class="fas fa-angle-up"></i> `;
-  }
-
-  setFocus() {
-    this.buttonEl.focus();
-  }
-}
-
-class List {
-  constructor(notifyListbox, values, listboxId) {
-    this.listEl = document.createElement('ul');
-    this.listEl.id = `${listboxId}-ul`;
-    this.listEl.className = 'listbox-ul';
-    this.listEl.setAttribute('role', 'listbox');
-    this.divEl = document.createElement('div');
-    this.divEl.className = 'listbox-ul-container';
-    this.notifyListbox = notifyListbox;
-    this.listEl.addEventListener('click', this.clickHandler.bind(this));
-    this.listEl.addEventListener('keydown', this.keydownHandler.bind(this));
-    this.currentIndex = 0;
-    this.previousIndex = 0;
-    this.hidden;
-    this.hide();
-
-    const mouseEnterHandler = this.mouseEnterHandler.bind(this);
-    const mouseLeaveHandler = this.mouseLeaveHandler.bind(this);
-    const list = this.listEl;
-    const reducer = function(acc, value, index) {
-      const liEl = document.createElement('li');
-      liEl.textContent = value;
-      liEl.addEventListener('mouseenter', mouseEnterHandler);
-      liEl.addEventListener('mouseleave', mouseLeaveHandler);
-      liEl.className = 'listbox-li';
-      liEl.id = `${listboxId}-li-${index}`;
-      liEl.setAttribute('role', 'option');
-      list.appendChild(liEl);
-      acc.push(liEl);
-      return acc;
-    }
-    this.liElementsArray = values.reduce(reducer, []);
-    this.setAriaActiveDescendant(this.liElementsArray[0].id);
-    this.divEl.appendChild(this.listEl);
-  }
-
-  append(parent) {
-    parent.appendChild(this.divEl);
-  }
-
-  mouseEnterHandler(e) {
-    this.liElementsArray[this.currentIndex].style.backgroundColor = 'white';
-    e.target.style.backgroundColor = 'gray';
-    this.notifyListbox(e, 'mouseenter', e.target.textContent);
-    this.setAriaActiveDescendant(e.target.id);
-  }
-
-  mouseLeaveHandler(e) {
-    e.target.style.backgroundColor = 'initial';
-  }
-
-  clickHandler(e) {
-    this.hide();
-    this.notifyListbox(e, 'selectCurrent', e.target.textContent);
-  }
-
-  keydownHandler(e) {
-    switch (e.keyCode) {
-      case VK_DOWN:
-      case VK_UP:
-        this.handleChangeCurrentLI(e);
-        this.notifyListbox(e, 'changeCurrent', this.liElementsArray[this.currentIndex].textContent);
-        break;
-      case VK_ESC:
-      case VK_ENTER:
-        this.hide();
-        this.notifyListbox(e, 'selectCurrent', this.liElementsArray[this.currentIndex].textContent);
-        break;
-      default:
+  class List {
+    constructor(values, listboxId,
+      mouseenterHandler, clickHandler, documentClickHandler) {
+      this.documentClickHandler = documentClickHandler;
+      this.listboxId = listboxId;
+      this.ulEl = document.createElement('ul');
+      this.ulEl.id = `${listboxId}-ul`;
+      this.ulEl.classList.add('listbox-ul');
+      this.ulEl.hidden = true;
+      this.ulEl.setAttribute('role', 'listbox');
+      // for positioning
+      this.divEl = document.createElement('div');
+      this.divEl.className = 'listbox-ul-container';
+      this.divEl.id = `${listboxId}-ul-container}`;
+      this.ulEl.addEventListener('click', clickHandler);
+      this.currentIndex = 0;
+      this.initialIndex = 0;
+      const list = this.ulEl;
+      function reducer(acc, value, index) {
+        const liEl = document.createElement('li');
+        liEl.textContent = value;
+        liEl.addEventListener('mouseenter', mouseenterHandler);
+        liEl.className = 'listbox-li';
+        liEl.id = `${listboxId}-li-${index}`;
+        liEl.setAttribute('role', 'option');
+        list.appendChild(liEl);
+        acc.push(liEl);
+        return acc;
+      }
+      this.liElementsArray = values.reduce(reducer, []);
+      this.setAriaSelected(this.liElementsArray[0].id);
+      this.divEl.appendChild(this.ulEl);
     }
 
-  }
-
-  toggleVisibility() {
-    if (this.hidden) {
-      this.show();
-    } else {
-      this.hide();
+    getCurrentElementText() {
+      return this.liElementsArray[this.currentIndex].textContent;
     }
-  }
 
-  show() {
-    if (this.hidden) {
-      this.hidden = false;
-      this.listEl.classList.remove('hidden');
-      this.listEl.tabIndex = '0';
-      this.listEl.focus();
-      this.styleCurrentLI();
+    getCurrentElement() {
+      return this.liElementsArray[this.currentIndex];
     }
-  }
 
-  hide() {
-    if (!this.hidden) {
-      this.hidden = true;
-      this.listEl.classList.add('hidden');
-      this.listEl.tabIndex = '-1';
+    restoreInitialState() {
+      this.currentIndex = this.initialIndex;
+      this.setAriaSelected(this.liElementsArray[this.currentIndex].id);
     }
-  }
 
-  getPreviousIndex() {
-    const index = this.currentIndex - 1 < 0
-      ? this.liElementsArray.length - 1
-      : this.currentIndex - 1;
-    return index;
-  }
+    isHidden() {
+      return this.ulEl.hidden;
+    }
 
-  getNextIndex() {
-    const index = this.currentIndex + 1 == this.liElementsArray.length
-      ? 0
-      : this.currentIndex + 1;
-    return index;
-  }
+    getId() {
+      return this.ulEl.id;
+    }
 
-  setAriaActiveDescendant(id) {
-    this.listEl.setAttribute('aria-activedescendant', id);
-    this.liElementsArray.forEach(function(liEl, index) {
-      if (liEl.id === id) {
-        liEl.setAttribute('aria-selected', 'true');
-      } else {
+    append(parent) {
+      parent.appendChild(this.divEl);
+    }
+
+    setCurrentIndex(targetEl) {
+      const arry = targetEl.id.split('-');
+      const index = parseInt(arry[arry.length - 1], 10);
+      this.currentIndex = index;
+    }
+
+    saveInitialState() {
+      this.initialIndex = this.currentIndex;
+    }
+
+    show() {
+      if (this.ulEl.hidden) {
+        this.saveInitialState();
+        document.addEventListener('click', this.documentClickHandler, true);
+        this.ulEl.hidden = false;
+      }
+    }
+
+    hide() {
+      if (!this.ulEl.hidden) {
+        this.ulEl.hidden = true;
+        document.removeEventListener('click', this.documentClickHandler, true);
+      }
+    }
+
+    getPreviousIndex() {
+      const index = this.currentIndex - 1 < 0
+        ? this.liElementsArray.length - 1
+        : this.currentIndex - 1;
+      return index;
+    }
+
+    getNextIndex() {
+      const index = this.currentIndex + 1 === this.liElementsArray.length
+        ? 0
+        : this.currentIndex + 1;
+      return index;
+    }
+
+    setAriaSelected(id) {
+      this.liElementsArray.forEach((liEl) => {
+        if (liEl.id === id) {
+          liEl.setAttribute('aria-selected', 'true');
+          liEl.classList.add('listbox-li-selected');
+          return;
+        }
         if (liEl.hasAttribute('aria-selected')) {
           liEl.removeAttribute('aria-selected');
+          liEl.classList.remove('listbox-li-selected');
         }
-      }
-    });
-  }
+      });
+    }
 
-  handleChangeCurrentLI(e) {
-    this.previousIndex = this.currentIndex;
-    switch (e.keyCode) {
+    handleChangeCurrentLI(e) {
+      e.preventDefault();
+      this.liElementsArray[this.currentIndex].tabIndex = '-1';
+      switch (e.keyCode) {
       case VK_DOWN:
         this.currentIndex = this.getNextIndex();
         break;
@@ -202,84 +188,152 @@ class List {
         break;
       default:
         return;
+      }
+      this.setAriaSelected(this.liElementsArray[this.currentIndex].id);
     }
-    this.styleCurrentLI();
-    this.setAriaActiveDescendant(this.liElementsArray[this.currentIndex].id);
   }
 
-  styleCurrentLI() {
-    this.liElementsArray[this.previousIndex].style.backgroundColor = 'initial';
-    this.liElementsArray[this.currentIndex].style.backgroundColor = 'gray';
-  }
+  class Listbox {
+    constructor({
+      id, parentId, label, callback, values,
+    }) {
+      const parent = document.getElementById(parentId);
+      if (!parent) return;
+      this.divEl = document.createElement('div');
+      this.divEl.id = id;
+      this.divEl.classList.add('listbox-container');
+      const labelEl = document.createElement('label');
+      labelEl.className = 'listbox-label';
+      labelEl.id = `listbox-label-${id}`;
+      labelEl.textContent = `${label}:`;
+      labelEl.setAttribute('for', `${id}-ul`);
+      this.documentClickHandler = this.documentClickHandler.bind(this);
 
-}
+      this.list = new List(values, id,
+        this.listItemMouseenterHandler.bind(this),
+        this.listClickHandler.bind(this),
+        this.documentClickHandler);
 
-class Listbox {
-  constructor({id, parentId, label, callback, values}) {
-    //if (!id || !typeof parentId === 'string') return;
-    const parent = document.getElementById(parentId);
-    if (!parent) return;
-    const divEl = document.createElement('div');
-    this.id = id;
-    divEl.classList.add('listbox-container');
-    divEl.id = id;
-    const labelEl = document.createElement('label');
-    labelEl.className = 'listbox-label';
-    labelEl.id = `listbox-label-${id}`;
-    labelEl.textContent = `${label}:`;
-    labelEl.setAttribute('for', `${id}-ul`);
+      this.callback = callback;
+      this.button = new Button(label, id, labelEl.id,
+        this.buttonClickHandler.bind(this), this.keydownHandler.bind(this));
+      this.divEl.appendChild(labelEl);
+      this.button.append(this.divEl);
+      this.list.append(this.divEl);
+      parent.append(this.divEl);
+      this.button.setAriaActiveDescendant(this.list.getCurrentElement());
 
-    this.notifyListboxButton = this.notifyListboxButton.bind(this);
-    this.notifyListboxList = this.notifyListboxList.bind(this);
+      this.currentListItem = 0;
+      this.totalItems = values.length;
+    }
 
-    this.list = new List(this.notifyListboxList, values, id);
-    this.callback = callback;
+    buttonClickHandler(e) {
+      if (this.list.isHidden()) {
+        this.list.show(e);
+        this.button.handleExpand();
+      } else {
+        this.list.hide();
+        this.button.handleCollapse();
+      }
+    }
 
-    this.button = new Button(this.notifyListboxButton, label, id, labelEl.id);
-    divEl.appendChild(labelEl);
-    this.button.append(divEl);
-    this.list.append(divEl);
-    parent.append(divEl);
+    listClickHandler(e) {
+      this.callback(this.divEl.id, e.target.textContent);
+      this.button.handleCollapse();
+      this.list.hide();
+    }
 
-    this.selectedItem = 0;
-    this.currentListItem = 0;
-    this.totalItems = values.length;
-  }
+    listItemMouseenterHandler(e) {
+      this.list.setAriaSelected(e.target.id);
+      this.button.setAriaActiveDescendant(e.target);
+      this.list.setCurrentIndex(e.target);
+    }
 
-
-  notifyListboxList(e, type, text) {
-    e.preventDefault();
-    switch(type) {
-      case 'mouseenter' :
-        this.button.setText(text);
-        break;
-      case 'selectCurrent' :
-        this.callback(this.id, text);
-        this.button.setFocus();
-        this.button.toggleExpanded();
-        break;
-      case 'changeCurrent' :
-        this.button.setText(text);
+    buttonKeydownHandler(e) {
+      switch (e.keyCode) {
+      case VK_DOWN:
+      case VK_ENTER:
+      case VK_UP:
+        e.preventDefault();
+        this.list.show(e);
+        this.button.handleExpand();
         break;
       default:
+      }
+    }
+
+    keydownHandler(e) {
+      if (this.list.isHidden()) {
+        this.buttonKeydownHandler(e);
+      } else {
+        this.listKeydownHandler(e);
+      }
+    }
+
+    listKeydownHandler(e) {
+      switch (e.keyCode) {
+      case VK_DOWN:
+      case VK_UP:
+        e.preventDefault();
+        this.list.handleChangeCurrentLI(e);
+        this.button.setAriaActiveDescendant(this.list.getCurrentElement());
+        break;
+      // executing search
+      case VK_ESC:
+      case VK_ENTER:
+        e.preventDefault();
+        this.callback(this.divEl.id, this.list.getCurrentElementText());
+        this.button.setFocus();
+        this.list.hide();
+        break;
+      case VK_TAB:
+        this.restoreInitialState();
+        break;
+      default:
+      }
+    }
+
+    documentClickHandler(e) {
+      // if the click has not occurred in the listbox, restore the initial state
+      if (!((e.target.id.includes(this.divEl.id) && e.target.nodeName !== 'LABEL')
+       || (e.target.parentElement.id === `${this.divEl.id}-button`))) {
+        this.restoreInitialState();
+      }
+      document.removeEventListener('click', this.documentClickHandler, true);
+    }
+
+    restoreInitialState() {
+      this.list.restoreInitialState();
+      this.list.hide();
+      this.button.setAriaActiveDescendant(this.list.getCurrentElement());
+      this.button.handleCollapse();
     }
   }
 
-  notifyListboxButton(e) {
-
-    e.preventDefault();
-    switch(e.type) {
-      case 'click' :
-        this.list.toggleVisibility();
-        break;
-      case 'keydown':
-        this.list.show();
-        break;
-    }
+  function checkId(id) {
+    if (!id) throw new Error('An id is required for the creation of the Listbox');
+    if (typeof id === 'number') throw new Error('The id must be a string value');
+    if (document.getElementById(id)) throw new Error('A unique id is required for the Listbox');
   }
 
-}
-  return function(options) {
-    new Listbox(options);
+  function checkParentId(parentId) {
+    if (!parentId) throw new Error('A parentId is required for the creation of the Listbox');
+    if (!document.getElementById(parentId)) throw new Error('Invalid parentId');
   }
+
+  function checkParams(id, parentId, callback) {
+    checkId(id);
+    checkParentId(parentId);
+    if (!callback) throw new Error('A callback is required for the Listbox');
+  }
+
+  return function listbox({
+    id, parentId, label = 'Listbox Label', callback, values = ['All'],
+  }) {
+    /* eslint-disable no-new */
+    checkParams(id, parentId, callback);
+    new Listbox({
+      id, parentId, label, callback, values,
+    });
+  };
 }());
