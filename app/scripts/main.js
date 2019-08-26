@@ -234,7 +234,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
       this.comboBox = makeListbox(
         {
           id: filterOptions.filterKey,
-          parentId: 'new-filter-options',
+          parentId: 'filter-options',
           label: label,
           callback: this.handleFilterSelection,
           values: Object.keys(filterOptions.values),
