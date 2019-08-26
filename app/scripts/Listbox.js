@@ -21,14 +21,6 @@ const makeListbox = (function () {
       this.expanded = false;
     }
 
-    getExpanded() {
-      return this.expanded;
-    }
-
-    getId() {
-      return this.buttonEl.id;
-    }
-
     append(parent) {
       parent.appendChild(this.buttonEl);
     }
@@ -113,10 +105,6 @@ const makeListbox = (function () {
 
     isHidden() {
       return this.ulEl.hidden;
-    }
-
-    getId() {
-      return this.ulEl.id;
     }
 
     append(parent) {
