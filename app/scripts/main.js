@@ -114,8 +114,23 @@ window.addEventListener('DOMContentLoaded', (event) => {
             id: restaurant.id,
           });
         marker.on('click', markerClickHandler);
-        marker.addTo(this.newMap);
-        return marker;
+        return {
+          marker: marker.addTo(this.newMap),
+          displayed: true,
+        };
+      });
+    },
+    updateMarkers: function updateMarkers(idArray) {
+      this.markerArray.forEach((marker, index) => {
+        if (!marker.displayed && idArray.includes(index)) {
+          marker.marker.addTo(this.newMap);
+          marker.displayed = true;
+          return;
+        }
+        if (marker.displayed && !idArray.includes(index)) {
+          marker.marker.remove();
+          marker.displayed = false;
+        }
       });
     },
     getImageElement: function getImageElement(restaurant) {
@@ -169,6 +184,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
       const newUlElement = this.getRestaurantListElement(filteredElements);
       this.listContainer.replaceChild(newUlElement, this.currentRestaurantUL);
       this.currentRestaurantUL = newUlElement;
+      this.updateMarkers(idArray);
     },
     addFilter: function addFilter(filterOptions, label) {
       this.filterValues[filterOptions.filterKey] = 'All';
