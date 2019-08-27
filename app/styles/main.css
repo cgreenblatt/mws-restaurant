@@ -25,7 +25,7 @@ header {
   top: 0;
   background-color: #252831;
   text-align:center;
-  z-index: 10;
+  z-index: 10000;
   overflow: auto;
 }
 
@@ -178,12 +178,14 @@ h1 {
   position: absolute;
   top: 5px;
   width: 100%;
-  z-index: 10;
   background-color: #FFF;
-  padding: 10px;
   list-style: none;
   border: solid 1px gray;
   border-radius: 5px;
+}
+
+.listbox-li {
+  padding: 4px 10px;
 }
 
 .listbox-li-selected {
