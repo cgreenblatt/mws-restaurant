@@ -1,6 +1,4 @@
-
-window.addEventListener('DOMContentLoaded', (event) => {
-
+window.addEventListener('DOMContentLoaded', () => {
   const model = {
     getURL() {
       const port = 9000; // Change this to your server port
@@ -229,7 +227,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
       view.updateRestaurantList(list);
     },
   };
-
 
   controller.init();
 });

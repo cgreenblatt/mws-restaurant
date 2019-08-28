@@ -3,7 +3,9 @@
   "engines": {
     "node": ">=4"
   },
-  "dependencies": {},
+  "dependencies": {
+    "eslint-utils": "^1.4.2"
+  },
   "devDependencies": {
     "@babel/core": "^7.4.5",
     "@babel/preset-env": "^7.4.5",
