@@ -183,10 +183,10 @@ const makeListbox = (function () {
 
   class Listbox {
     constructor({
-      id, parentId, label, callback, values,
+      id, parent, label, callback, values,
     }) {
-      const parent = document.getElementById(parentId);
-      if (!parent) return;
+      //const parent = document.getElementById(parentId);
+      //if (!parent) return;
       this.divEl = document.createElement('div');
       this.divEl.id = id;
       this.divEl.classList.add('listbox-container');
@@ -304,24 +304,23 @@ const makeListbox = (function () {
     if (document.getElementById(id)) throw new Error('A unique id is required for the Listbox');
   }
 
-  function checkParentId(parentId) {
+  /*function checkParentId(parentId) {
     if (!parentId) throw new Error('A parentId is required for the creation of the Listbox');
     if (!document.getElementById(parentId)) throw new Error('Invalid parentId');
-  }
+  }*/
 
-  function checkParams(id, parentId, callback) {
+  function checkParams(id, callback) {
     checkId(id);
-    checkParentId(parentId);
     if (!callback) throw new Error('A callback is required for the Listbox');
   }
 
   return function listbox({
-    id, parentId, label = 'Listbox Label', callback, values = ['All'],
+    id, parent, label = 'Listbox Label', callback, values = ['All'],
   }) {
     /* eslint-disable no-new */
-    checkParams(id, parentId, callback);
+    checkParams(id, callback);
     new Listbox({
-      id, parentId, label, callback, values,
+      id, parent, label, callback, values,
     });
   };
 }());
