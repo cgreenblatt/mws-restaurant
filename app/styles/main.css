@@ -133,7 +133,7 @@ h1 {
   font-weight: 400;
 }
 
-#restaurants-list a {
+#restaurants-list button {
   background-color: #9E9E9E;
   color: #000;
   display: inline-block;
@@ -141,7 +141,6 @@ h1 {
   margin-top: 10px;
   padding: 8px 0;
   text-align: center;
-  text-decoration: underline;
   text-transform: uppercase;
   width: 100%;
   border-bottom-right-radius: 18px;
@@ -198,4 +197,45 @@ h1 {
 
 #filter-options {
   padding: 0 10px;
+}
+
+/* restaurant details styling */
+
+#restaurant-details-container {
+  border-bottom: 1px solid #d9d9d9;
+  border-top: 1px solid #fff;
+  z-index: 3;
+  background: inherit;
+  padding: 0 10px;
+  background-color: inherit;
+}
+
+.restaurant-img-details {
+  background-color: #ccc;
+  width: 100%;
+  height: auto;
+}
+
+#restaurant-name {
+  font-weight: 300;
+  margin: 20px 0;
+  text-transform: uppercase;
+}
+
+#restaurant-address {
+  font-family: arial, helvetica, sans-serif;
+  margin: 25px 0 10px 0;
+}
+
+#restaurant-cuisine {
+  background-color: #333;
+  color: #ddd;
+  font-size: 1.1rem;
+  font-weight: 300;
+  letter-spacing: 10px;
+  margin: 10px 0;
+  padding: 2px 0;
+  text-align: center;
+  text-transform: uppercase;
+	width: 100%;
 }

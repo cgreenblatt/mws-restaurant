@@ -13,13 +13,13 @@ window.addEventListener('DOMContentLoaded', () => {
       }
       this.routes[name] = { pathname, callback };
     },
-    navigate: function navigate(name, pathname, stateObj, ...rest) {
+    navigate: function navigate(name, pathname, stateObj) {
       window.history.pushState(stateObj, 'details', pathname);
-      this.routes[name].callback(rest);
+      this.routes[name].callback(pathname);
     },
     navigateToURL: function navigateToURL() {
       const route = this.getRoute();
-      this.routes[route].callback();
+      this.routes[route].callback(window.location.hash);
     },
     getRoute: function getPath() {
       const route = window.location.hash ? 'details' : 'home';
@@ -210,9 +210,6 @@ window.addEventListener('DOMContentLoaded', () => {
       neighborhood.textContent = restaurant.neighborhood;
       const address = document.createElement('h4');
       address.textContent = restaurant.address;
-      const link = document.createElement('a');
-      link.href = restaurant.restaurantURL;
-      link.textContent = 'View Details';
       const li = document.createElement('li');
       li.id = restaurant.id;
       li.className = 'restaurant-card';
@@ -220,7 +217,6 @@ window.addEventListener('DOMContentLoaded', () => {
       li.appendChild(name);
       li.appendChild(neighborhood);
       li.appendChild(address);
-      li.appendChild(link);
       const button = document.createElement('button');
       button.textContent = 'details';
       button.addEventListener('click', this.detailsButtonHandler.bind(this));
@@ -263,7 +259,7 @@ window.addEventListener('DOMContentLoaded', () => {
           label,
           callback: this.handleFilterSelection,
           values: Object.keys(filterOptions.values),
-        }
+        },
       );
     },
     handleFilterSelection: function handleFilterSelection(filterKey, value) {
@@ -276,11 +272,35 @@ window.addEventListener('DOMContentLoaded', () => {
     init: function init(appDiv) {
       this.appDiv = appDiv;
       this.container = document.createElement('div');
-      const message = document.createElement('h2');
-      message.textContent = 'hello!!';
-      this.container.appendChild(message);
+      this.container.id = 'restaurant-details-container';
+      this.detailsSection = document.createElement('section');
+      this.detailsSection.className = 'restaurant-card';
+      this.container.appendChild(this.detailsSection);
+
+      this.nameHeading = document.createElement('h2');
+      this.nameHeading.id = 'restaurant-name';
+      this.image = document.createElement('img');
+      this.image.className = 'restaurant-img-details';
+      this.cuisineHeading = document.createElement('h4');
+      this.cuisineHeading.id = 'restaurant-cuisine';
+      this.addressHeading = document.createElement('h4');
+      this.addressHeading.id = 'restaurant-address';
+      this.hoursTable = document.createElement('table');
+      this.hoursTable.id = 'restaurant-hours';
+
+      this.detailsSection.appendChild(this.nameHeading);
+      this.detailsSection.appendChild(this.image);
+      this.detailsSection.appendChild(this.cuisineHeading);
+      this.detailsSection.appendChild(this.addressHeading);
+      this.detailsSection.appendChild(this.hoursTable);
       return this.container;
     },
+    instantiateValues: function instantiateValues(restaurant) {
+      this.nameHeading.textContent = restaurant.name;
+      this.image.src = restaurant.imageURLs[1];
+      this.cuisineHeading.textContent = restaurant.cuisine;
+      this.addressHeading.textContent = restaurant.address;
+    }
   };
 
   const view = {
@@ -296,7 +316,7 @@ window.addEventListener('DOMContentLoaded', () => {
       homeScreen.updateRestaurantList(list);
     },
     showDetails: function showDetails(restaurant) {
-      if (this.currentScreen === 'details') return;
+      detailsScreen.instantiateValues(restaurant);
       if (this.currentScreen === 'home') {
         this.appDiv.replaceChild(this.detailsScreen, this.homeScreen);
       } else {
@@ -323,14 +343,15 @@ window.addEventListener('DOMContentLoaded', () => {
           name: 'home',
           pathname: '/',
           callback: this.showHome.bind(this),
-        });
+        },
+      );
       router.add(
         {
           name: 'details',
           pathname: '#details/',
           callback: this.showDetails.bind(this),
-        }
-      )
+        },
+      );
       model.initData().then((data) => {
         view.init(this, {
           coordinates: model.getMapCenterCoords(),
@@ -356,17 +377,16 @@ window.addEventListener('DOMContentLoaded', () => {
     },
     viewDetailsRequest: (restaurantId) => {
       const restaurant = model.getRestaurantById(restaurantId);
-      const name = 'details';
-      const pathname = `#details/${restaurant.name.replace(/ /g, '-')}.html`;
-      const stateObj = { restaurantId: restaurant.id };
-      router.navigate(name, pathname, stateObj, restaurant);
+      const pathname = `#details/${restaurantId}/${restaurant.name.replace(/ /g, '_')}.html`;
+      router.navigate('details', pathname, {});
     },
-    showDetails: function showDetails(restaurant) {
-      view.showDetails(restaurant);
+    showDetails: function showDetails(pathname) {
+      const restaurantId = parseInt(pathname.split('/')[1]);
+      view.showDetails(model.getRestaurantById(restaurantId));
     },
     showHome: function showHome() {
       view.showHome();
-    }
+    },
   };
 
   controller.init();
