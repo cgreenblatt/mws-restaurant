@@ -47,6 +47,10 @@ h1 {
   text-transform: uppercase;
 }
 
+h2 {
+  font-size: 1.5rem;
+}
+
 #maincontent {
   grid-template-rows: 400px auto;
   margin-top: 65px;
@@ -200,26 +204,20 @@ h1 {
 }
 
 /* restaurant details styling */
-
-#restaurant-details-container {
-  border-bottom: 1px solid #d9d9d9;
-  border-top: 1px solid #fff;
-  z-index: 3;
-  background: inherit;
-  padding: 0 10px;
-  background-color: inherit;
-}
-
-.restaurant-img-details {
-  background-color: #ccc;
-  width: 100%;
-  height: auto;
+#restaurant-container, #reviews-container {
+    border-bottom: 1px solid #d9d9d9;
+    border-top: 1px solid #fff;
+    z-index: 3;
+    background: inherit;
+    padding: 0 10px;
+    background-color: inherit;
 }
 
 #restaurant-name {
   font-weight: 300;
   margin: 20px 0;
   text-transform: uppercase;
+  color: #d43706;
 }
 
 #restaurant-address {
@@ -238,4 +236,18 @@ h1 {
   text-align: center;
   text-transform: uppercase;
 	width: 100%;
+}
+
+#restaurant-hours {
+  padding-bottom: 20px;
+}
+
+.day {
+  padding-right: 20px;
+  color: #000;
+}
+
+.hours {
+  padding: 2px 0;
+  color: #666;
 }

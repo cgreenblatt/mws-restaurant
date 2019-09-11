@@ -272,35 +272,63 @@ window.addEventListener('DOMContentLoaded', () => {
     init: function init(appDiv) {
       this.appDiv = appDiv;
       this.container = document.createElement('div');
-      this.container.id = 'restaurant-details-container';
+      this.container.id = 'restaurant-container';
       this.detailsSection = document.createElement('section');
-      this.detailsSection.className = 'restaurant-card';
       this.container.appendChild(this.detailsSection);
 
       this.nameHeading = document.createElement('h2');
       this.nameHeading.id = 'restaurant-name';
       this.image = document.createElement('img');
-      this.image.className = 'restaurant-img-details';
+      this.image.className = 'restaurant-img';
       this.cuisineHeading = document.createElement('h4');
       this.cuisineHeading.id = 'restaurant-cuisine';
       this.addressHeading = document.createElement('h4');
       this.addressHeading.id = 'restaurant-address';
       this.hoursTable = document.createElement('table');
       this.hoursTable.id = 'restaurant-hours';
+      this.days = {
+        Monday: {},
+        Tuesday: {},
+        Wednesday: {},
+        Thursday: {},
+        Friday: {},
+        Saturday: {},
+        Sunday: {},
+      };
+
+      Object.keys(this.days).map((d) => {
+        const day = this.days[d];
+        day.trDay = document.createElement('tr');
+        day.tdDay = document.createElement('td');
+        day.tdDay.textContent = d;
+        day.tdDay.className = 'day';
+        day.tdHours = document.createElement('td');
+        day.tdHours.className = 'hours';
+
+        day.trDay.appendChild(day.tdDay);
+        day.trDay.appendChild(day.tdHours);
+        this.hoursTable.appendChild(day.trDay);
+      });
 
       this.detailsSection.appendChild(this.nameHeading);
       this.detailsSection.appendChild(this.image);
       this.detailsSection.appendChild(this.cuisineHeading);
       this.detailsSection.appendChild(this.addressHeading);
       this.detailsSection.appendChild(this.hoursTable);
+
       return this.container;
     },
     instantiateValues: function instantiateValues(restaurant) {
       this.nameHeading.textContent = restaurant.name;
       this.image.src = restaurant.imageURLs[1];
-      this.cuisineHeading.textContent = restaurant.cuisine;
+      this.cuisineHeading.textContent = restaurant.cuisine_type;
       this.addressHeading.textContent = restaurant.address;
-    }
+      Object.keys(this.days).map((d) => {
+        this.days[d].tdHours.textContent = restaurant.operating_hours[d]
+          ? restaurant.operating_hours[d].replace(/-/g, 'to')
+          : '';
+      });
+    },
   };
 
   const view = {
