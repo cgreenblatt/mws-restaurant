@@ -2,9 +2,8 @@ window.addEventListener('DOMContentLoaded', () => {
   const router = {
     init: function init() {
       this.routes = {};
-      window.addEventListener('popstate', () => {
-        const route = this.getRoute(window.location.hash);
-        this.routes[route].callback();
+      window.addEventListener('popstate', (e) => {
+        this.navigateToURL();
       });
     },
     add: function addRoute({ name, pathname, callback }) {
@@ -110,6 +109,7 @@ window.addEventListener('DOMContentLoaded', () => {
       mapSection.appendChild(mapDiv);
       appDiv.append(mapSection);
       this.newMap = this.initMap(initData.coordinates);
+      this.mapCenter = initData.coordinates.map.center;
       this.markerArray = this.initMarkers(initData.restaurants);
     },
     initMap: (coordinates) => {
@@ -171,6 +171,9 @@ window.addEventListener('DOMContentLoaded', () => {
       this.updateMarkers([restaurant.id - 1]);
       this.newMap.panTo([restaurant.latlng.lat, restaurant.latlng.lng]);
     },
+    restoreMapCenter: function restoreMapCenter() {
+      this.newMap.panTo(this.mapCenter);
+    },
   };
 
   const homeScreen = {
@@ -195,6 +198,7 @@ window.addEventListener('DOMContentLoaded', () => {
       this.filterValues = {};
       this.addFilter(initData.filters.cuisines, 'Cuisines');
       this.addFilter(initData.filters.neighborhoods, 'Neighborhoods');
+      this.idArray = initData.restaurants.map((r) => r.id - 1);
       return this.container;
     },
     getImageElement: function getImageElement(restaurant) {
@@ -248,6 +252,7 @@ window.addEventListener('DOMContentLoaded', () => {
       this.listContainer.appendChild(ulElement);
     },
     updateRestaurantList: function updateRestaurantList(idArray) {
+      this.idArray = idArray;
       const filteredElements = idArray.map((id) => this.restaurantElementsArray[id]);
       const newUlElement = this.getRestaurantListElement(filteredElements);
       this.listContainer.replaceChild(newUlElement, this.currentRestaurantUL);
@@ -270,6 +275,9 @@ window.addEventListener('DOMContentLoaded', () => {
       this.filterValues[filterKey] = value;
       this.controller.filterRestaurants(this.filterValues);
     },
+    getIdArray: function getIdArray() {
+      return this.idArray;
+    }
   };
 
   const detailsScreen = {
@@ -358,8 +366,9 @@ window.addEventListener('DOMContentLoaded', () => {
       this.currentScreen = 'details';
     },
     showHome: function showHome() {
-      map.addAllMarkers();
       if (this.currentScreen === 'home') return;
+      map.updateMarkers(homeScreen.getIdArray());
+      map.restoreMapCenter();
       if (this.currentScreen === 'details') {
         this.appDiv.replaceChild(this.homeScreen, this.detailsScreen);
       } else {
