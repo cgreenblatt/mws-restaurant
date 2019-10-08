@@ -167,6 +167,10 @@ window.addEventListener('DOMContentLoaded', () => {
         }
       });
     },
+    updateMap: function updateMap(restaurant) {
+      this.updateMarkers([restaurant.id - 1]);
+      this.newMap.panTo([restaurant.latlng.lat, restaurant.latlng.lng]);
+    },
   };
 
   const homeScreen = {
@@ -344,6 +348,7 @@ window.addEventListener('DOMContentLoaded', () => {
       homeScreen.updateRestaurantList(list);
     },
     showDetails: function showDetails(restaurant) {
+      map.updateMap(restaurant);
       detailsScreen.instantiateValues(restaurant);
       if (this.currentScreen === 'home') {
         this.appDiv.replaceChild(this.detailsScreen, this.homeScreen);
