@@ -101,13 +101,13 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const map = {
     init: function init(initData, appDiv) {
-      const mapSection = document.createElement('section');
-      mapSection.id = 'map-container';
+      this.mapSection = document.createElement('section');
+      this.mapSection.id = 'map-container';
       const mapDiv = document.createElement('div');
       mapDiv.id = 'map';
       mapDiv.setAttribute('role', 'application');
-      mapSection.appendChild(mapDiv);
-      appDiv.append(mapSection);
+      this.mapSection.appendChild(mapDiv);
+      appDiv.append(this.mapSection);
       this.newMap = this.initMap(initData.coordinates);
       this.mapCenter = initData.coordinates.map.center;
       this.markerArray = this.initMarkers(initData.restaurants);
@@ -351,6 +351,7 @@ window.addEventListener('DOMContentLoaded', () => {
       this.homeScreen = homeScreen.init(this.appDiv, initData, controller);
       this.detailsScreen = detailsScreen.init();
       this.currentScreen = null;
+      this.headerHeight = document.querySelector('header').offsetHeight;
     },
     updateRestaurantList: function updateRestaurantList(list) {
       homeScreen.updateRestaurantList(list);
@@ -360,6 +361,7 @@ window.addEventListener('DOMContentLoaded', () => {
       detailsScreen.instantiateValues(restaurant);
       if (this.currentScreen === 'home') {
         this.appDiv.replaceChild(this.detailsScreen, this.homeScreen);
+        window.scrollTo(0, -this.headerHeight)
       } else {
         this.appDiv.appendChild(this.detailsScreen);
       }
