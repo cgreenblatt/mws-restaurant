@@ -100,7 +100,7 @@ window.addEventListener('DOMContentLoaded', () => {
   };
 
   const map = {
-    init: function init(initData, appDiv) {
+    init: function init(initData, appDiv, markerClickHandler) {
       this.mapSection = document.createElement('section');
       this.mapSection.id = 'map-container';
       const mapDiv = document.createElement('div');
@@ -110,7 +110,7 @@ window.addEventListener('DOMContentLoaded', () => {
       appDiv.append(this.mapSection);
       this.newMap = this.initMap(initData.coordinates);
       this.mapCenter = initData.coordinates.map.center;
-      this.markerArray = this.initMarkers(initData.restaurants);
+      this.markerArray = this.initMarkers(initData.restaurants, markerClickHandler);
       const group = new L.featureGroup(this.markerArray.map((m) => m.marker));
       this.bounds = group.getBounds();
     },
@@ -120,7 +120,7 @@ window.addEventListener('DOMContentLoaded', () => {
     initMap: (coordinates) => {
       const newMap = L.map('map', {
         center: coordinates.map.center,
-        zoom: 8,
+        zoom: 10,
         scrollWheelZoom: false,
       });
       L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_token={mapboxToken}', {
@@ -133,10 +133,7 @@ window.addEventListener('DOMContentLoaded', () => {
       }).addTo(newMap);
       return newMap;
     },
-    initMarkers: function initMarkers(restaurants) {
-      function markerClickHandler(event) {
-        console.log('id is ' + event.sourceTarget.options.id);
-      }
+    initMarkers: function initMarkers(restaurants, markerClickHandler) {
       return restaurants.map((restaurant) => {
         const marker = new L.marker([restaurant.latlng.lat, restaurant.latlng.lng],
           {
@@ -347,9 +344,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const view = {
     init: function init(controller, initData) {
+      const markerClickHandler = (event)  => {
+        if (this.currentScreen === 'home') {
+         controller.viewDetailsRequest(event.sourceTarget.options.id);
+       }
+      }
       this.controller = controller;
       this.appDiv = document.getElementById('app');
-      map.init(initData, this.appDiv);
+      map.init(initData, this.appDiv, markerClickHandler);
       this.homeScreen = homeScreen.init(this.appDiv, initData, controller);
       this.detailsScreen = detailsScreen.init();
       this.currentScreen = null;
