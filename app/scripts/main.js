@@ -120,7 +120,7 @@ window.addEventListener('DOMContentLoaded', () => {
     initMap: (coordinates) => {
       const newMap = L.map('map', {
         center: coordinates.map.center,
-        zoom: 10,
+        zoom: 12,
         scrollWheelZoom: false,
       });
       L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_token={mapboxToken}', {
