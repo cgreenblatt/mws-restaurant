@@ -111,11 +111,16 @@ window.addEventListener('DOMContentLoaded', () => {
       this.newMap = this.initMap(initData.coordinates);
       this.mapCenter = initData.coordinates.map.center;
       this.markerArray = this.initMarkers(initData.restaurants);
+      const group = new L.featureGroup(this.markerArray.map((m) => m.marker));
+      this.bounds = group.getBounds();
+    },
+    fitBounds: function fitBounds() {
+      this.newMap.fitBounds(this.bounds);
     },
     initMap: (coordinates) => {
       const newMap = L.map('map', {
         center: coordinates.map.center,
-        zoom: 12,
+        zoom: 8,
         scrollWheelZoom: false,
       });
       L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_token={mapboxToken}', {
@@ -170,9 +175,6 @@ window.addEventListener('DOMContentLoaded', () => {
     updateMap: function updateMap(restaurant) {
       this.updateMarkers([restaurant.id - 1]);
       this.newMap.panTo([restaurant.latlng.lat, restaurant.latlng.lng]);
-    },
-    restoreMapCenter: function restoreMapCenter() {
-      this.newMap.panTo(this.mapCenter);
     },
   };
 
@@ -370,7 +372,7 @@ window.addEventListener('DOMContentLoaded', () => {
     showHome: function showHome() {
       if (this.currentScreen === 'home') return;
       map.updateMarkers(homeScreen.getIdArray());
-      map.restoreMapCenter();
+      map.fitBounds();
       if (this.currentScreen === 'details') {
         this.appDiv.replaceChild(this.homeScreen, this.detailsScreen);
       } else {
