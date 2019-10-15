@@ -20,21 +20,17 @@ body {
 }
 
 header {
-  width: 100%;
   position: fixed;
   top: 0;
   background-color: #252831;
-  text-align:center;
   z-index: 10000;
-  overflow: auto;
-}
-
-.header {
   display: grid;
   grid-template-columns: 1fr;
   align-items: center;
   justify-content: center;
+  text-align: center;
   height: 65px;
+  width: 100%;
 }
 
 h1 {
