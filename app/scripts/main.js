@@ -102,8 +102,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const map = {
     init: function init(initData, appDiv, markerClickHandler, view) {
       this.mapSection = view.initElement({ tag: 'section', id: 'map-container' });
-      const mapDiv = view.initElement({ tag: 'div', id: 'map', role: 'application' });
-      this.mapSection.appendChild(mapDiv);
+      const mapDiv = view.initElement({ tag: 'div', id: 'map', role: 'application', appendTo: this.mapSection });
       appDiv.append(this.mapSection);
       this.newMap = this.initMap(initData.coordinates);
       this.mapCenter = initData.coordinates.map.center;
@@ -178,12 +177,9 @@ window.addEventListener('DOMContentLoaded', () => {
       this.controller = controller;
       this.container = view.initElement({ tag: 'section', id: 'home-screen-container' });
       // create filter area
-      this.filterDiv = view.initElement({ tag: 'div', id: 'filter-options' });
-      this.container.appendChild(this.filterDiv);
+      this.filterDiv = view.initElement({ tag: 'div', id: 'filter-options', appendTo: this.container });
       // create restaurant list container
-      this.listContainer = view.initElement({ tag: 'div', id: 'restaurants-container' });
-      this.container.appendChild(this.listContainer);
-
+      this.listContainer = view.initElement({ tag: 'div', id: 'restaurants-container', appendTo: this.container });
       this.restaurantElementsArray = this.initRestaurantElementsArray(initData.restaurants);
       this.currentRestaurantUL = this.getRestaurantListElement(this.restaurantElementsArray);
       this.handleFilterSelection = this.handleFilterSelection.bind(this);
@@ -205,17 +201,13 @@ window.addEventListener('DOMContentLoaded', () => {
       return img;
     },
     getRestaurantLiElement: function getRestaurantLIElement(restaurant) {
-      const name = this.view.initElement({ tag: 'h3', textContent: restaurant.name });
-      const neighborhood = this.view.initElement({ tag: 'h4', textContent: restaurant.neighborhood });
-      const address = this.view.initElement({ tag: 'h4', textContent: restaurant.address });
       const li = this.view.initElement({ tag: 'li', id: restaurant.id, className: 'restaurant-card' });
-      const button = this.view.initElement({ tag: 'button', textContent: 'details' });
-      button.addEventListener('click', this.detailsButtonHandler.bind(this));
       li.appendChild(this.getImageElement(restaurant));
-      li.appendChild(name);
-      li.appendChild(neighborhood);
-      li.appendChild(address);
-      li.appendChild(button);
+      const name = this.view.initElement({ tag: 'h3', textContent: restaurant.name, appendTo: li});
+      const neighborhood = this.view.initElement({ tag: 'h4', textContent: restaurant.neighborhood, appendTo: li });
+      const address = this.view.initElement({ tag: 'h4', textContent: restaurant.address, appendTo: li });
+      const button = this.view.initElement({ tag: 'button', textContent: 'details', appendTo: li });
+      button.addEventListener('click', this.detailsButtonHandler.bind(this));
       return li;
     },
     detailsButtonHandler: function detailsButtonHandler(e) {
@@ -267,19 +259,13 @@ window.addEventListener('DOMContentLoaded', () => {
   const detailsScreen = {
     init: function init(view) {
       this.container = view.initElement({ tag: 'div', id: 'restaurant-container' });
-      this.detailsSection = document.createElement('section');
-      this.container.appendChild(this.detailsSection);
-      this.nameHeading = view.initElement({ tag: 'h2', id: 'restaurant-name' });
-      this.image = view.initElement({ tag: 'img', className: 'restaurant-img' });
-      this.cuisineHeading = view.initElement({ tag: 'h4', id: 'restaurant-cuisine' });
-      this.addressHeading = view.initElement({ tag: 'h4', id: 'restaurant-address' });
-      this.hoursTable = view.initElement({ tag: 'table', id: 'restaurant-hours' });
+      this.detailsSection = view.initElement({ tag: 'section', appendTo: this.container });
+      this.nameHeading = view.initElement({ tag: 'h2', id: 'restaurant-name', appendTo: this.detailsSection });
+      this.image = view.initElement({ tag: 'img', className: 'restaurant-img', appendTo: this.detailsSection });
+      this.cuisineHeading = view.initElement({ tag: 'h4', id: 'restaurant-cuisine', appendTo: this.detailsSection });
+      this.addressHeading = view.initElement({ tag: 'h4', id: 'restaurant-address', appendTo: this.detailsSection });
+      this.hoursTable = view.initElement({ tag: 'table', id: 'restaurant-hours', appendTo: this.detailsSection });
       this.initDays();
-      this.detailsSection.appendChild(this.nameHeading);
-      this.detailsSection.appendChild(this.image);
-      this.detailsSection.appendChild(this.cuisineHeading);
-      this.detailsSection.appendChild(this.addressHeading);
-      this.detailsSection.appendChild(this.hoursTable);
       return this.container;
     },
     initBreadcrumb: function initBreadcrumb() {
@@ -302,10 +288,8 @@ window.addEventListener('DOMContentLoaded', () => {
       Object.keys(this.days).forEach((d) => {
         const day = this.days[d];
         day.trDay = view.initElement({ tag: 'tr' });
-        day.tdDay = view.initElement({ tag: 'td', className: 'day', textContent: d });
-        day.tdHours = view.initElement({ tag: 'td', className: 'hours' });
-        day.trDay.appendChild(day.tdDay);
-        day.trDay.appendChild(day.tdHours);
+        day.tdDay = view.initElement({ tag: 'td', className: 'day', textContent: d, appendTo: day.trDay });
+        day.tdHours = view.initElement({ tag: 'td', className: 'hours', appendTo: day.trDay });
         this.hoursTable.appendChild(day.trDay);
       });
     },
@@ -362,14 +346,14 @@ window.addEventListener('DOMContentLoaded', () => {
       }
       this.currentScreen = 'home';
     },
-    initElement: ({ tag, id, className, textContent, role }) => {
+    initElement: ({ tag, id, className, textContent, role, appendTo }) => {
       if (!tag) return null;
       const el = document.createElement(tag);
       if (id) el.id = id;
       if (className) el.className = className;
       if (textContent) el.textContent = textContent;
-      if (role) el.setAttribute('role', role)
-
+      if (role) el.setAttribute('role', role);
+      if (appendTo) appendTo.appendChild(el);
       return el;
     },
   };
