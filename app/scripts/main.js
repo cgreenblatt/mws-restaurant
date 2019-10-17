@@ -54,9 +54,6 @@ window.addEventListener('DOMContentLoaded', () => {
           });
           return this.data.restaurants;
         })
-        .catch((error) => {
-          console.log('oops ' + error);
-        });
     },
     getValuesFor: function getValuesFor(filterKey) {
       const reducer = (acc, restaurant) => {
@@ -404,6 +401,9 @@ window.addEventListener('DOMContentLoaded', () => {
           },
         });
         router.navigateToURL();
+      }).catch((error) => {
+        //TODO put in error message
+        console.log('oops ' + error);
       });
     },
     getFilterOptions: (filterKey) => {
