@@ -1,26 +1,26 @@
 window.addEventListener('DOMContentLoaded', () => {
   const router = {
-    init: function init() {
+    init() {
       this.routes = {};
       window.addEventListener('popstate', () => {
         this.navigateToURL();
       });
     },
-    add: function addRoute({ name, pathname, callback }) {
+    add({ name, pathname, callback }) {
       if (!this.routes) {
         this.init();
       }
       this.routes[name] = { pathname, callback };
     },
-    navigate: function navigate(name, pathname, stateObj) {
+    navigate(name, pathname, stateObj) {
       window.history.pushState(stateObj, name, pathname);
       this.routes[name].callback(pathname);
     },
-    navigateToURL: function navigateToURL() {
+    navigateToURL() {
       const route = this.getRoute();
       this.routes[route].callback(window.location.hash);
     },
-    getRoute: function getPath() {
+    getRoute() {
       const route = window.location.hash ? 'details' : 'home';
       return route;
     },
@@ -39,7 +39,7 @@ window.addEventListener('DOMContentLoaded', () => {
       }),
     getRestaurantURL: (name) => `/${name.replace(/ /g, '_')}.html`,
     getImageURLs: (id) => ['-350-small', '-700-medium', '-1050-large', '-1400-xlarge'].map((size) => `/images/${id}${size}.jpg`),
-    initData: function initData() {
+    initData() {
       return fetch(this.getURL())
         .then((response) => {
           if (!response.ok) throw new Error(`Error: ${response.statusText}`);
@@ -55,7 +55,7 @@ window.addEventListener('DOMContentLoaded', () => {
           return this.data.restaurants;
         })
     },
-    getValuesFor: function getValuesFor(filterKey) {
+    getValuesFor(filterKey) {
       const reducer = (acc, restaurant) => {
         const value = restaurant[filterKey];
         if (acc[value]) {
@@ -79,10 +79,10 @@ window.addEventListener('DOMContentLoaded', () => {
       const filterIndexes = filterValuesObject[selectedValue];
       return filterIndexes;
     },
-    getIntersection: function getIntersection(array1, array2) {
+    getIntersection(array1, array2) {
       return array2.filter((value) => array1.includes(value));
     },
-    filterRestaurants: function filterRestaurants(filterValuesSelected) {
+    filterRestaurants(filterValuesSelected) {
       const filterKeys = Object.keys(filterValuesSelected);
       let intersectionIndexes = this.getFilterIndexes(filterValuesSelected, filterKeys[0]);
       for (let i = 1; i < filterKeys.length; i += 1) {
@@ -97,7 +97,7 @@ window.addEventListener('DOMContentLoaded', () => {
   };
 
   const map = {
-    init: function init(initData, appDiv, markerClickHandler, view) {
+    init(initData, appDiv, markerClickHandler, view) {
       this.mapSection = view.initElement({ tag: 'section', id: 'map-container' });
       const mapDiv = view.initElement({ tag: 'div', id: 'map', role: 'application', appendTo: this.mapSection });
       appDiv.append(this.mapSection);
@@ -107,7 +107,7 @@ window.addEventListener('DOMContentLoaded', () => {
       const group = new L.featureGroup(this.markerArray.map((m) => m.marker));
       this.bounds = group.getBounds();
     },
-    fitBounds: function fitBounds() {
+    fitBounds() {
       this.newMap.fitBounds(this.bounds);
     },
     initMap: (coordinates) => {
@@ -126,7 +126,7 @@ window.addEventListener('DOMContentLoaded', () => {
       }).addTo(newMap);
       return newMap;
     },
-    initMarkers: function initMarkers(restaurants, markerClickHandler) {
+    initMarkers(restaurants, markerClickHandler) {
       return restaurants.map((restaurant) => {
         const marker = new L.marker([restaurant.latlng.lat, restaurant.latlng.lng],
           {
@@ -142,14 +142,14 @@ window.addEventListener('DOMContentLoaded', () => {
         };
       });
     },
-    addAllMarkers: function addAllMarkers() {
+    addAllMarkers() {
       this.markerArray.forEach((marker) => {
         if (marker.displayed) return;
         marker.marker.addTo(this.newMap);
         marker.displayed = true;
       });
     },
-    updateMarkers: function updateMarkers(idArray) {
+    updateMarkers(idArray) {
       this.markerArray.forEach((marker, index) => {
         if (!marker.displayed && idArray.includes(index)) {
           marker.marker.addTo(this.newMap);
@@ -162,14 +162,14 @@ window.addEventListener('DOMContentLoaded', () => {
         }
       });
     },
-    updateMap: function updateMap(restaurant) {
+    updateMap(restaurant) {
       this.updateMarkers([restaurant.id - 1]);
       this.newMap.panTo([restaurant.latlng.lat, restaurant.latlng.lng]);
     },
   };
 
   const homeScreen = {
-    init: function init(view, initData, controller) {
+    init(view, initData, controller) {
       this.view = view;
       this.controller = controller;
       this.container = view.initElement({ tag: 'section', id: 'home-screen-container' });
@@ -187,7 +187,7 @@ window.addEventListener('DOMContentLoaded', () => {
       this.idArray = initData.restaurants.map((r) => r.id - 1);
       return this.container;
     },
-    getImageElement: function getImageElement(restaurant) {
+    getImageElement(restaurant) {
       const img = document.createElement('img');
       img.alt = restaurant.name;
       img.src = restaurant.imageURLs[1];
@@ -197,7 +197,7 @@ window.addEventListener('DOMContentLoaded', () => {
       img.className = 'restaurant-img';
       return img;
     },
-    getRestaurantLiElement: function getRestaurantLIElement(restaurant) {
+    getRestaurantLiElement(restaurant) {
       const li = this.view.initElement({ tag: 'li', id: restaurant.id, className: 'restaurant-card' });
       li.appendChild(this.getImageElement(restaurant));
       const name = this.view.initElement({ tag: 'h3', textContent: restaurant.name, appendTo: li});
@@ -207,13 +207,13 @@ window.addEventListener('DOMContentLoaded', () => {
       button.addEventListener('click', this.detailsButtonHandler.bind(this));
       return li;
     },
-    detailsButtonHandler: function detailsButtonHandler(e) {
+    detailsButtonHandler(e) {
       this.controller.viewDetailsRequest(e.path[1].id);
     },
-    initRestaurantElementsArray: function initRestaurantElementsArray(restaurants) {
+    initRestaurantElementsArray(restaurants) {
       return restaurants.map((restaurant) => this.getRestaurantLiElement(restaurant));
     },
-    getRestaurantListElement: function getRestaurantListElement(restaurantElementsArray) {
+    getRestaurantListElement(restaurantElementsArray) {
       const list = this.view.initElement({ tag: 'ul', id: 'restaurants-list' });
       // add all <li> restaurant elements to new list
       restaurantElementsArray.forEach((element) => {
@@ -221,10 +221,10 @@ window.addEventListener('DOMContentLoaded', () => {
       });
       return list;
     },
-    addRestaurantListToDom: function addRestaurantListToDom(ulElement) {
+    addRestaurantListToDom(ulElement) {
       this.listContainer.appendChild(ulElement);
     },
-    updateRestaurantList: function updateRestaurantList(idArray) {
+    updateRestaurantList(idArray) {
       this.idArray = idArray;
       const filteredElements = idArray.map((id) => this.restaurantElementsArray[id]);
       const newUlElement = this.getRestaurantListElement(filteredElements);
@@ -232,7 +232,7 @@ window.addEventListener('DOMContentLoaded', () => {
       this.currentRestaurantUL = newUlElement;
       map.updateMarkers(idArray);
     },
-    addFilter: function addFilter(filterOptions, label) {
+    addFilter(filterOptions, label) {
       this.filterValues[filterOptions.filterKey] = 'All';
       this.comboBox = makeListbox(
         {
@@ -244,17 +244,17 @@ window.addEventListener('DOMContentLoaded', () => {
         },
       );
     },
-    handleFilterSelection: function handleFilterSelection(filterKey, value) {
+    handleFilterSelection(filterKey, value) {
       this.filterValues[filterKey] = value;
       this.controller.filterRestaurants(this.filterValues);
     },
-    getIdArray: function getIdArray() {
+    getIdArray() {
       return this.idArray;
     },
   };
 
   const detailsScreen = {
-    init: function init(view) {
+    init(view) {
       this.container = view.initElement({ tag: 'div', id: 'restaurant-container' });
       this.detailsSection = view.initElement({ tag: 'section', appendTo: this.container });
       this.nameHeading = view.initElement({ tag: 'h2', id: 'restaurant-name', appendTo: this.detailsSection });
@@ -267,7 +267,7 @@ window.addEventListener('DOMContentLoaded', () => {
       this.initDays();
       return this.container;
     },
-    initDays: function initDays() {
+    initDays() {
       this.days = {
         Monday: {},
         Tuesday: {},
@@ -285,7 +285,7 @@ window.addEventListener('DOMContentLoaded', () => {
         this.hoursTable.appendChild(day.trDay);
       });
     },
-    instantiateValues: function instantiateValues(restaurant) {
+    instantiateValues(restaurant) {
       this.nameHeading.textContent = restaurant.name;
       this.image.src = restaurant.imageURLs[1];
       this.cuisineHeading.textContent = restaurant.cuisine_type;
@@ -299,7 +299,7 @@ window.addEventListener('DOMContentLoaded', () => {
   };
 
   const view = {
-    init: function init(controller, initData) {
+    init(controller, initData) {
       const markerClickHandler = (event)  => {
         if (this.currentScreen === 'home') {
          controller.viewDetailsRequest(event.sourceTarget.options.id);
@@ -315,7 +315,7 @@ window.addEventListener('DOMContentLoaded', () => {
       this.main = document.querySelector('main');
       this.breadcrumb = this.initBreadcrumb();
     },
-    initBreadcrumb: function initBreadcrumb() {
+    initBreadcrumb() {
       const nav = this.initElement({ tag: 'nav' });
       const breadcrumb = this.initElement({ tag: 'ul', className: 'breadcrumb-ul', appendTo: nav });
       const home = this.initElement({ tag: 'li', className: 'breadcrumb-li', textContent: 'Home', appendTo: breadcrumb });
@@ -329,10 +329,10 @@ window.addEventListener('DOMContentLoaded', () => {
       );
       return nav;
     },
-    updateRestaurantList: function updateRestaurantList(list) {
+    updateRestaurantList(list) {
       homeScreen.updateRestaurantList(list);
     },
-    showDetails: function showDetails(restaurant) {
+    showDetails(restaurant) {
       if (this.currentScreen === 'details') return;
       map.updateMap(restaurant);
       detailsScreen.instantiateValues(restaurant);
@@ -347,7 +347,7 @@ window.addEventListener('DOMContentLoaded', () => {
       }
       this.currentScreen = 'details';
     },
-    showHome: function showHome() {
+    showHome() {
       if (this.currentScreen === 'home') return;
       map.updateMarkers(homeScreen.getIdArray());
       map.fitBounds();
@@ -360,7 +360,9 @@ window.addEventListener('DOMContentLoaded', () => {
       }
       this.currentScreen = 'home';
     },
-    initElement: ({ tag, id, className, classList, textContent, role, appendTo }) => {
+    initElement: ({
+      tag, id, className, classList, textContent, role, appendTo
+    }) => {
       if (!tag) return null;
       const el = document.createElement(tag);
       if (id) el.id = id;
@@ -376,7 +378,7 @@ window.addEventListener('DOMContentLoaded', () => {
   };
 
   const controller = {
-    init: function init() {
+    init() {
       router.add(
         {
           name: 'home',
@@ -422,14 +424,14 @@ window.addEventListener('DOMContentLoaded', () => {
       const pathname = `#details/${restaurantId}/${restaurant.name.replace(/ /g, '_')}.html`;
       router.navigate('details', pathname, {});
     },
-    showDetails: function showDetails(pathname) {
+    showDetails(pathname) {
       const restaurantId = parseInt(pathname.split('/')[1]);
       view.showDetails(model.getRestaurantById(restaurantId));
     },
     viewHomeRequest: () => {
       router.navigate('home', '/', {});
     },
-    showHome: function showHome() {
+    showHome() {
       view.showHome();
     },
   };
