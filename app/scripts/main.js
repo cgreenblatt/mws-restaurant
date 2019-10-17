@@ -2,7 +2,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const router = {
     init: function init() {
       this.routes = {};
-      window.addEventListener('popstate', (e) => {
+      window.addEventListener('popstate', () => {
         this.navigateToURL();
       });
     },
@@ -13,7 +13,7 @@ window.addEventListener('DOMContentLoaded', () => {
       this.routes[name] = { pathname, callback };
     },
     navigate: function navigate(name, pathname, stateObj) {
-      window.history.pushState(stateObj, 'details', pathname);
+      window.history.pushState(stateObj, name, pathname);
       this.routes[name].callback(pathname);
     },
     navigateToURL: function navigateToURL() {
@@ -253,7 +253,7 @@ window.addEventListener('DOMContentLoaded', () => {
     },
     getIdArray: function getIdArray() {
       return this.idArray;
-    }
+    },
   };
 
   const detailsScreen = {
@@ -267,13 +267,6 @@ window.addEventListener('DOMContentLoaded', () => {
       this.hoursTable = view.initElement({ tag: 'table', id: 'restaurant-hours', appendTo: this.detailsSection });
       this.initDays();
       return this.container;
-    },
-    initBreadcrumb: function initBreadcrumb() {
-      this.nav = document.createElement('nav');
-      this.breadcrumb = document.createElement('ul');
-      this.breadcrumb.className = 'breadcrumb';
-      const home = document.createElement('li');
-      home.textContent = 'Home';
     },
     initDays: function initDays() {
       this.days = {
@@ -319,17 +312,37 @@ window.addEventListener('DOMContentLoaded', () => {
       this.homeScreen = homeScreen.init(this, initData, controller);
       this.detailsScreen = detailsScreen.init(this);
       this.currentScreen = null;
-      this.headerHeight = document.querySelector('header').offsetHeight;
+      this.header = document.querySelector('header');
+      this.main = document.querySelector('main');
+      this.breadcrumb = this.initBreadcrumb();
+    },
+    initBreadcrumb: function initBreadcrumb() {
+      const nav = this.initElement({ tag: 'nav' });
+      const breadcrumb = this.initElement({ tag: 'ul', className: 'breadcrumb-ul', appendTo: nav });
+      const home = this.initElement({ tag: 'li', className: 'breadcrumb-li', textContent: 'Home', appendTo: breadcrumb });
+      home.addEventListener('click', () => {
+        this.controller.viewHomeRequest();
+      });
+      this.restaurantBreadcrumb = this.initElement(
+        {
+          tag: 'li', id: 'breadcrumb-restaurant', className: 'breadcrumb-li', appendTo: breadcrumb,
+        }
+      );
+      return nav;
     },
     updateRestaurantList: function updateRestaurantList(list) {
       homeScreen.updateRestaurantList(list);
     },
     showDetails: function showDetails(restaurant) {
+      if (this.currentScreen === 'details') return;
       map.updateMap(restaurant);
       detailsScreen.instantiateValues(restaurant);
+      this.restaurantBreadcrumb.textContent = restaurant.name;
+      this.header.appendChild(this.breadcrumb);
+      this.main.style.marginTop = `${this.header.offsetHeight}px`;
       if (this.currentScreen === 'home') {
         this.appDiv.replaceChild(this.detailsScreen, this.homeScreen);
-        window.scrollTo(0, -this.headerHeight)
+        window.scroll({ top: 0, behavior: 'smooth' });
       } else {
         this.appDiv.appendChild(this.detailsScreen);
       }
@@ -340,6 +353,8 @@ window.addEventListener('DOMContentLoaded', () => {
       map.updateMarkers(homeScreen.getIdArray());
       map.fitBounds();
       if (this.currentScreen === 'details') {
+        this.breadcrumb.remove();
+        this.main.style.marginTop = `${this.header.offsetHeight}px`;
         this.appDiv.replaceChild(this.homeScreen, this.detailsScreen);
       } else {
         this.appDiv.appendChild(this.homeScreen);
@@ -405,6 +420,9 @@ window.addEventListener('DOMContentLoaded', () => {
     showDetails: function showDetails(pathname) {
       const restaurantId = parseInt(pathname.split('/')[1]);
       view.showDetails(model.getRestaurantById(restaurantId));
+    },
+    viewHomeRequest: () => {
+      router.navigate('home', '/', {});
     },
     showHome: function showHome() {
       view.showHome();

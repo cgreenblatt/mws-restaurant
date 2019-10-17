@@ -304,11 +304,6 @@ const makeListbox = (function () {
     if (document.getElementById(id)) throw new Error('A unique id is required for the Listbox');
   }
 
-  /*function checkParentId(parentId) {
-    if (!parentId) throw new Error('A parentId is required for the creation of the Listbox');
-    if (!document.getElementById(parentId)) throw new Error('Invalid parentId');
-  }*/
-
   function checkParams(id, callback) {
     checkId(id);
     if (!callback) throw new Error('A callback is required for the Listbox');

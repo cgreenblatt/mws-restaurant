@@ -22,15 +22,17 @@ body {
 header {
   position: fixed;
   top: 0;
-  background-color: #252831;
   z-index: 10000;
+  width: 100%;
+}
+
+#header-div {
   display: grid;
   grid-template-columns: 1fr;
   align-items: center;
   justify-content: center;
-  text-align: center;
   height: 65px;
-  width: 100%;
+  background-color: #252831;
 }
 
 h1 {
@@ -41,6 +43,7 @@ h1 {
   font-size: 1.4rem;
   font-weight: 200;
   text-transform: uppercase;
+  text-align: center;
 }
 
 h2 {
@@ -246,4 +249,37 @@ h2 {
 .hours {
   padding: 2px 0;
   color: #666;
+}
+
+.breadcrumb-div {
+
+}
+
+.breadcrumb-ul {
+    list-style: none;
+    background-color: #eee;
+    height: 45px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    justify-items: start;
+}
+
+.breadcrumb-li {
+  font-size: 1rem;
+  color: #026BCF;
+  float: left;
+  padding: 12px 0 12px 12px;
+  height: 45px;
+  cursor: pointer;
+}
+
+.breadcrumb-li+.breadcrumb-li::before {
+  content: '/';
+  padding-right: 12px;
+}
+
+#breadcrumb-restaurant {
+  color: black;
+  cursor: default;
 }
