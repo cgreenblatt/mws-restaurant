@@ -261,7 +261,9 @@ window.addEventListener('DOMContentLoaded', () => {
       this.container = view.initElement({ tag: 'div', id: 'restaurant-container' });
       this.detailsSection = view.initElement({ tag: 'section', appendTo: this.container });
       this.nameHeading = view.initElement({ tag: 'h2', id: 'restaurant-name', appendTo: this.detailsSection });
-      this.image = view.initElement({ tag: 'img', className: 'restaurant-img', appendTo: this.detailsSection });
+      this.image = view.initElement({
+        tag: 'img', classList: ['restaurant-img-d', 'restaurant-img'], appendTo: this.detailsSection,
+      });
       this.cuisineHeading = view.initElement({ tag: 'h4', id: 'restaurant-cuisine', appendTo: this.detailsSection });
       this.addressHeading = view.initElement({ tag: 'h4', id: 'restaurant-address', appendTo: this.detailsSection });
       this.hoursTable = view.initElement({ tag: 'table', id: 'restaurant-hours', appendTo: this.detailsSection });
@@ -361,11 +363,14 @@ window.addEventListener('DOMContentLoaded', () => {
       }
       this.currentScreen = 'home';
     },
-    initElement: ({ tag, id, className, textContent, role, appendTo }) => {
+    initElement: ({ tag, id, className, classList, textContent, role, appendTo }) => {
       if (!tag) return null;
       const el = document.createElement(tag);
       if (id) el.id = id;
       if (className) el.className = className;
+      if (classList) {
+        classList.forEach((c) => el.classList.add(c));
+      }
       if (textContent) el.textContent = textContent;
       if (role) el.setAttribute('role', role);
       if (appendTo) appendTo.appendChild(el);
