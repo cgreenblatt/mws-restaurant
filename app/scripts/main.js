@@ -53,7 +53,7 @@ window.addEventListener('DOMContentLoaded', () => {
             restaurant.imageURLs = model.getImageURLs(restaurant.id);
           });
           return this.data.restaurants;
-        })
+        });
     },
     getValuesFor(filterKey) {
       const reducer = (acc, restaurant) => {
@@ -99,7 +99,9 @@ window.addEventListener('DOMContentLoaded', () => {
   const map = {
     init(initData, appDiv, markerClickHandler, view) {
       this.mapSection = view.initElement({ tag: 'section', id: 'map-container' });
-      const mapDiv = view.initElement({ tag: 'div', id: 'map', role: 'application', appendTo: this.mapSection });
+      view.initElement({
+        tag: 'div', id: 'map', role: 'application', appendTo: this.mapSection,
+      });
       appDiv.append(this.mapSection);
       this.newMap = this.initMap(initData.coordinates);
       this.mapCenter = initData.coordinates.map.center;
@@ -198,11 +200,11 @@ window.addEventListener('DOMContentLoaded', () => {
       return img;
     },
     getRestaurantLiElement(restaurant) {
-      const li = this.view.initElement({ tag: 'li', id: restaurant.id, className: 'restaurant-card' });
+      const li = this.view.initElement({ tag: 'li', id: restaurant.id, className: 'card' });
       li.appendChild(this.getImageElement(restaurant));
-      const name = this.view.initElement({ tag: 'h3', textContent: restaurant.name, appendTo: li});
-      const neighborhood = this.view.initElement({ tag: 'h4', textContent: restaurant.neighborhood, appendTo: li });
-      const address = this.view.initElement({ tag: 'h4', textContent: restaurant.address, appendTo: li });
+      this.view.initElement({ tag: 'h3', textContent: restaurant.name, appendTo: li });
+      this.view.initElement({ tag: 'h4', textContent: restaurant.neighborhood, appendTo: li });
+      this.view.initElement({ tag: 'h4', textContent: restaurant.address, appendTo: li });
       const button = this.view.initElement({ tag: 'button', textContent: 'details', appendTo: li });
       button.addEventListener('click', this.detailsButtonHandler.bind(this));
       return li;
@@ -255,8 +257,22 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const detailsScreen = {
     init(view) {
-      this.container = view.initElement({ tag: 'div', id: 'restaurant-container' });
-      this.detailsSection = view.initElement({ tag: 'section', appendTo: this.container });
+      this.view = view;
+      this.container = view.initElement({ tag: 'div' });
+      this.initDetailsSection(view);
+      this.initReviewsSection(view);
+      return this.container;
+    },
+    initReviewsSection(view) {
+      this.reviewsSection = view.initElement({ tag: 'section', id: 'reviews-container', appendTo: this.container });
+      view.initElement({
+        tag: 'h2', id: 'reviews-heading', textContent: 'Reviews', appendTo: this.reviewsSection,
+      });
+      this.reviewsList = view.initElement({ tag: 'ul', id: 'reviews-list', appendTo: this.reviewsSection });
+      this.reviewCards = [];
+    },
+    initDetailsSection(view) {
+      this.detailsSection = view.initElement({ tag: 'section', id: 'details-container', appendTo: this.container });
       this.nameHeading = view.initElement({ tag: 'h2', id: 'restaurant-name', appendTo: this.detailsSection });
       this.image = view.initElement({
         tag: 'img', classList: ['restaurant-img-d', 'restaurant-img'], appendTo: this.detailsSection,
@@ -264,10 +280,9 @@ window.addEventListener('DOMContentLoaded', () => {
       this.cuisineHeading = view.initElement({ tag: 'h4', id: 'restaurant-cuisine', appendTo: this.detailsSection });
       this.addressHeading = view.initElement({ tag: 'h4', id: 'restaurant-address', appendTo: this.detailsSection });
       this.hoursTable = view.initElement({ tag: 'table', id: 'restaurant-hours', appendTo: this.detailsSection });
-      this.initDays();
-      return this.container;
+      this.initDays(view);
     },
-    initDays() {
+    initDays(view) {
       this.days = {
         Monday: {},
         Tuesday: {},
@@ -280,7 +295,9 @@ window.addEventListener('DOMContentLoaded', () => {
       Object.keys(this.days).forEach((d) => {
         const day = this.days[d];
         day.trDay = view.initElement({ tag: 'tr' });
-        day.tdDay = view.initElement({ tag: 'td', className: 'day', textContent: d, appendTo: day.trDay });
+        day.tdDay = view.initElement({
+          tag: 'td', className: 'day', textContent: d, appendTo: day.trDay,
+        });
         day.tdHours = view.initElement({ tag: 'td', className: 'hours', appendTo: day.trDay });
         this.hoursTable.appendChild(day.trDay);
       });
@@ -290,11 +307,47 @@ window.addEventListener('DOMContentLoaded', () => {
       this.image.src = restaurant.imageURLs[1];
       this.cuisineHeading.textContent = restaurant.cuisine_type;
       this.addressHeading.textContent = restaurant.address;
-      Object.keys(this.days).map((d) => {
+      Object.keys(this.days).forEach((d) => {
         this.days[d].tdHours.textContent = restaurant.operating_hours[d]
           ? restaurant.operating_hours[d].replace(/-/g, 'to')
           : '';
       });
+      this.instantiateReviews(restaurant.reviews);
+    },
+    instantiateReviews(reviews) {
+      // remove reviews list from reviews section
+      this.reviewsList.remove();
+      let i = 0;
+      // instantiate review cards
+      for (; i < reviews.length; i += 1) {
+        // if there are not enough card elements for review, create new card
+        if (this.reviewCards.length === i) this.reviewCards.push(this.newCard());
+        // if card is not in DOM, append it to the reviews list
+        if (!this.reviewCards[i].parentNode) this.reviewsList.appendChild(this.reviewCards[i]);
+        // add values to card
+        this.instantiateReview(reviews[i], this.reviewCards[i]);
+      }
+      // if there are more cards than reviews, remove excess cards from list
+      for (; i < this.reviewCards.length; i += 1) {
+        this.reviewCards[i].remove();
+      }
+      // append reviews list to reviews section
+      this.reviewsSection.appendChild(this.reviewsList);
+    },
+    newCard() {
+      const li = this.view.initElement({ tag: 'li', className: 'card', appendTo: this.reviewsList });
+      const div = this.view.initElement({ tag: 'div', className: 'review-heading', appendTo: li });
+      this.view.initElement({ tag: 'h3', className: 'reviewer', appendTo: div });
+      this.view.initElement({ tag: 'h4', className: 'review-date', appendTo: div });
+      this.view.initElement({ tag: 'h3', className: 'review-rating', appendTo: li });
+      this.view.initElement({ tag: 'p', className: 'review-text', appendTo: li });
+      return li;
+    },
+    instantiateReview(review, card) {
+      card.querySelector('.reviewer').textContent = review.name;
+      card.querySelector('.review-date').textContent = review.date;
+      card.querySelector('.review-rating').textContent = `Rating: ${review.rating}`;
+      card.querySelector('.review-text').textContent = review.comments;
     },
   };
 
@@ -318,15 +371,15 @@ window.addEventListener('DOMContentLoaded', () => {
     initBreadcrumb() {
       const nav = this.initElement({ tag: 'nav' });
       const breadcrumb = this.initElement({ tag: 'ul', className: 'breadcrumb-ul', appendTo: nav });
-      const home = this.initElement({ tag: 'li', className: 'breadcrumb-li', textContent: 'Home', appendTo: breadcrumb });
+      const home = this.initElement({
+        tag: 'li', className: 'breadcrumb-li', textContent: 'Home', appendTo: breadcrumb,
+      });
       home.addEventListener('click', () => {
         this.controller.viewHomeRequest();
       });
-      this.restaurantBreadcrumb = this.initElement(
-        {
-          tag: 'li', id: 'breadcrumb-restaurant', className: 'breadcrumb-li', appendTo: breadcrumb,
-        }
-      );
+      this.restaurantBreadcrumb = this.initElement({
+        tag: 'li', id: 'breadcrumb-restaurant', className: 'breadcrumb-li', appendTo: breadcrumb,
+      });
       return nav;
     },
     updateRestaurantList(list) {
@@ -361,7 +414,7 @@ window.addEventListener('DOMContentLoaded', () => {
       this.currentScreen = 'home';
     },
     initElement: ({
-      tag, id, className, classList, textContent, role, appendTo
+      tag, id, className, classList, textContent, role, appendTo,
     }) => {
       if (!tag) return null;
       const el = document.createElement(tag);
