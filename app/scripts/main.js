@@ -205,7 +205,7 @@ window.addEventListener('DOMContentLoaded', () => {
       this.view.initElement({ tag: 'h3', textContent: restaurant.name, appendTo: li });
       this.view.initElement({ tag: 'h4', textContent: restaurant.neighborhood, appendTo: li });
       this.view.initElement({ tag: 'h4', textContent: restaurant.address, appendTo: li });
-      const button = this.view.initElement({ tag: 'button', textContent: 'details', appendTo: li });
+      const button = this.view.initElement({ tag: 'button', className: 'details-button', textContent: 'details', appendTo: li });
       button.addEventListener('click', this.detailsButtonHandler.bind(this));
       return li;
     },
@@ -339,15 +339,22 @@ window.addEventListener('DOMContentLoaded', () => {
       const div = this.view.initElement({ tag: 'div', className: 'review-heading', appendTo: li });
       this.view.initElement({ tag: 'h3', className: 'reviewer', appendTo: div });
       this.view.initElement({ tag: 'h4', className: 'review-date', appendTo: div });
-      this.view.initElement({ tag: 'h3', className: 'review-rating', appendTo: li });
+      const divRating = this.view.initElement({ tag: 'div', className: 'review-rating-div', appendTo: li });
+      this.view.initElement({ tag: 'h3', className: 'review-rating', appendTo: divRating });
+      this.view.initElement({ tag: 'span', classList: ['fas', 'star'], appendTo: divRating });
       this.view.initElement({ tag: 'p', className: 'review-text', appendTo: li });
       return li;
     },
     instantiateReview(review, card) {
       card.querySelector('.reviewer').textContent = review.name;
       card.querySelector('.review-date').textContent = review.date;
-      card.querySelector('.review-rating').textContent = `Rating: ${review.rating}`;
+      card.querySelector('.review-rating').textContent = 'Rating:';
       card.querySelector('.review-text').textContent = review.comments;
+      let starString = '';
+      for (let i = 0; i < review.rating; i += 1) {
+        starString += '\uf005';
+      }
+      card.querySelector('.star').textContent = starString;
     },
   };
 

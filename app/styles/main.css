@@ -142,17 +142,19 @@ h2 {
   font-weight: 400;
 }
 
-#restaurants-list button {
-  background-color: #999;
-  color: #000;
-  font-size: 1rem;
-  margin-top: 10px;
-  padding: 16px 0;
-  text-align: center;
-  text-transform: uppercase;
-  width: 100%;
-  border-bottom-right-radius: 18px;
-  letter-spacing: 2px;
+.details-button {
+    background-color: #999;
+    color: #FFF;
+    font-size: 1rem;
+    font-weight: 300;
+    margin-top: 10px;
+    padding: 14px 0;
+    text-align: center;
+    text-transform: uppercase;
+    width: 100%;
+    border-bottom-right-radius: 18px;
+    letter-spacing: 6px;
+    border-width: 0;
 }
 
 .listbox-container {
@@ -330,19 +332,25 @@ h2 {
     text-align: right;
 }
 
+.review-rating-div {
+  padding: 15px 20px;
+}
+
 .review-rating {
     border-radius: 4px;
-    background-color: #ff572d;
-    padding: 8px 10px;
+    padding: 8px 5px 8px 0;
     font-family: arial, sans-serif;
     color: #000;
     letter-spacing: .15rem;
-    margin: 10px 20px;
     font-size: 1rem;
     display: inline-block;
-    margin: 15px 20px;
 }
 
 .review-text {
-    padding: 0 20px 20px;
+    padding: 0 25px 25px;
+}
+
+.star {
+  font-size: 1.2rem;
+  color: #ff572d;
 }
