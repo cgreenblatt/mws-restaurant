@@ -273,7 +273,7 @@ window.addEventListener('DOMContentLoaded', () => {
     },
     initDetailsSection(view) {
       this.detailsSection = view.initElement({ tag: 'section', id: 'details-container', appendTo: this.container });
-      this.nameHeading = view.initElement({ tag: 'h2', id: 'restaurant-name', appendTo: this.detailsSection });
+      this.nameHeading = view.initElement({ tag: 'h2', id: 'restaurant-name', appendTo: this.detailsSection, tabindex: '0' });
       this.image = view.initElement({
         tag: 'img', classList: ['restaurant-img-d', 'restaurant-img'], appendTo: this.detailsSection,
       });
@@ -379,7 +379,7 @@ window.addEventListener('DOMContentLoaded', () => {
       const nav = this.initElement({ tag: 'nav' });
       const breadcrumb = this.initElement({ tag: 'ul', className: 'breadcrumb-ul', appendTo: nav });
       const home = this.initElement({
-        tag: 'li', className: 'breadcrumb-li', textContent: 'Home', appendTo: breadcrumb,
+        tag: 'li', className: 'breadcrumb-li', textContent: 'Home', appendTo: breadcrumb, tabindex: '0',
       });
       home.addEventListener('click', () => {
         this.controller.viewHomeRequest();
@@ -421,7 +421,7 @@ window.addEventListener('DOMContentLoaded', () => {
       this.currentScreen = 'home';
     },
     initElement: ({
-      tag, id, className, classList, textContent, role, appendTo,
+      tag, id, className, classList, textContent, role, appendTo, tabindex
     }) => {
       if (!tag) return null;
       const el = document.createElement(tag);
@@ -432,6 +432,7 @@ window.addEventListener('DOMContentLoaded', () => {
       }
       if (textContent) el.textContent = textContent;
       if (role) el.setAttribute('role', role);
+      if (tabindex) el.setAttribute('tabindex', tabindex);
       if (appendTo) appendTo.appendChild(el);
       return el;
     },
