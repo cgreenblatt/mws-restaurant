@@ -360,11 +360,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const view = {
     init(controller, initData) {
-      const markerClickHandler = (event)  => {
+      const markerClickHandler = (event) => {
         if (this.currentScreen === 'home') {
-         controller.viewDetailsRequest(event.sourceTarget.options.id);
-       }
-      }
+          controller.viewDetailsRequest(event.sourceTarget.options.id);
+        }
+      };
       this.controller = controller;
       this.appDiv = document.getElementById('app');
       map.init(initData, this.appDiv, markerClickHandler, this);
@@ -421,7 +421,7 @@ window.addEventListener('DOMContentLoaded', () => {
       this.currentScreen = 'home';
     },
     initElement: ({
-      tag, id, className, classList, textContent, role, appendTo, tabindex
+      tag, id, className, classList, textContent, role, appendTo, tabindex,
     }) => {
       if (!tag) return null;
       const el = document.createElement(tag);
