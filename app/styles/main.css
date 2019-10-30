@@ -58,7 +58,7 @@ h2 {
   flex-grow: 1;
 }
 
-#footer {
+footer {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
@@ -73,7 +73,7 @@ h2 {
   align-self: end;
 }
 
-#footer a {
+footer a {
   color: #fff;
   padding: 15px;
   font-size:.8rem;
@@ -83,13 +83,11 @@ h2 {
   text-decoration: none;
 }
 
-#footer a:hover {
+footer a:hover {
   text-decoration: underline;
 }
 
-#footer a:focus {
-  background: #fff;
-  color: #000;
+footer a:focus {
   outline-offset: -5px;
 }
 
@@ -141,19 +139,20 @@ h2 {
 #restaurants-list h4 {
   margin: 0 5px;
   font-weight: 400;
+  font-size: .95rem;
 }
 
 .details-button {
   background-color: #d9d9d9;
     color: #333;
-    font-size: .9rem;
+    font-size: .85rem;
     margin-top: 10px;
     padding: 14px 0;
     text-align: center;
     text-transform: uppercase;
     width: 100%;
     border-bottom-right-radius: 18px;
-    letter-spacing: 6px;
+    letter-spacing: 4px;
     border-width: 0;
     border-top: solid 2px #333;
     cursor: pointer;
@@ -371,22 +370,70 @@ h2 {
   color: #ff572d;
 }
 
-@media screen and (min-width: 700px) and (max-width: 1049px){
-  .card-restaurant {
-    display: inline-block;
-    width: calc((100% - 15px)/2);
+@media screen and (min-width: 400px) {
+  #filter-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin: 15px 0;
+    font-size: 1.1rem;
   }
 
-  .card-restaurant:nth-of-type(odd) {
-    margin-right: 15px;
+  #cuisine-type {
+    margin-right: 5px;
+  }
+
+  #neighborhood {
+    margin-left: 5px;
   }
 }
 
-@media screen and (min-width: 1050px) and (max-width: 1399px) {
+@media screen and (min-width: 700px) and (max-width: 1049px) {
+
   .card-restaurant {
     display: inline-block;
-    width: calc((100% - 30px)/3);
-    margin-right: 15px;
+    width: calc((100% - 20px)/2);
+  }
+
+  .card-restaurant:nth-of-type(odd) {
+    margin-right: 20px;
+  }
+}
+
+@media screen and (min-width: 700px) {
+  h1 {
+    font-size: 1.9rem;
+  }
+   #restaurant-name {
+     font-size: 1.7rem;
+   }
+
+   #restaurant-cuisine {
+     font-size: 1.2rem;
+   }
+
+   #restaurant-address, #restaurant-hours {
+     font-size: 1.1rem;
+   }
+}
+
+@media screen and (min-width: 1020px) {
+
+  #map {
+      height: 500px;
+  }
+
+  #restaurant-name {
+    font-size: 1.9rem;
+  }
+
+  #restaurant-cuisine {
+    font-size: 1.5rem;
+  }
+
+  .card-restaurant {
+    display: inline-block;
+    width: calc((100% - 40px)/3);
+    margin-right: 20px;
   }
 
   .card-restaurant:nth-of-type(3n) {
@@ -395,13 +442,87 @@ h2 {
 }
 
 @media screen and (min-width: 1400px) {
+
   .card-restaurant {
     display: inline-block;
-    width: calc((100% - 45px)/4);
-    margin-right: 15px;
+    width: calc((100% - 80px)/3);
+    margin-right: 40px;
+    margin-top: 40px;
   }
 
-  .card-restaurant:nth-of-type(4n) {
+  .card-restaurant:nth-of-type(3n) {
     margin-right: 0;
+  }
+
+  h1 {
+    font-size: 2.4rem;
+  }
+
+  .breadcrumb-li {
+    font-size: 1.2rem;
+  }
+
+  #map {
+      height: 550px;
+  }
+
+  #filter-options {
+    font-size: 1.4rem;
+  }
+
+  #restaurants-list h3 {
+    font-size: 1.3rem;
+  }
+
+  #restaurants-list h4 {
+    font-size: 1.2rem;
+  }
+
+  .details-button {
+    font-size: 1.05rem;
+  }
+
+  #restaurant-name {
+    font-size: 2rem;
+  }
+
+  #restaurant-cuisine {
+    font-size: 1.5rem;
+  }
+
+  #restaurant-address {
+    font-size: 1.3rem;
+  }
+
+  #restaurant-hours {
+    font-size: 1.3rem;
+  }
+
+  #reviews-heading {
+    font-size: 2rem;
+  }
+
+  .reviewer {
+    font-size: 1.4rem;
+  }
+
+  .review-date {
+    font-size: 1.1rem;
+  }
+
+  .review-rating {
+    font-size: 1.3rem;
+  }
+
+  .star {
+    font-size: 1.3rem;
+  }
+
+  .review-text {
+    font-size: 1.2rem;
+  }
+
+  footer a {
+    font-size: 1rem;
   }
 }
