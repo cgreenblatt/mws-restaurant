@@ -60,7 +60,6 @@ const makeListbox = (function () {
     constructor(values, listboxId,
       mouseenterHandler, clickHandler, documentClickHandler) {
       this.documentClickHandler = documentClickHandler;
-      this.listboxId = listboxId;
       this.ulEl = document.createElement('ul');
       this.ulEl.id = `${listboxId}-ul`;
       this.ulEl.classList.add('listbox-ul');
@@ -226,7 +225,7 @@ const makeListbox = (function () {
     }
 
     listClickHandler(e) {
-      this.callback(this.divEl.id, e.target.textContent);
+      this.callback(this.divEl.id.replace('-', '_'), e.target.textContent);
       this.button.handleCollapse();
       this.list.hide();
     }
@@ -270,7 +269,7 @@ const makeListbox = (function () {
       case VK_ESC:
       case VK_ENTER:
         e.preventDefault();
-        this.callback(this.divEl.id, this.list.getCurrentElementText());
+        this.callback(this.divEl.id.replace('-', '_'), this.list.getCurrentElementText());
         this.button.setFocus();
         this.list.hide();
         break;
@@ -313,9 +312,9 @@ const makeListbox = (function () {
     id, parent, label = 'Listbox Label', callback, values = ['All'],
   }) {
     /* eslint-disable no-new */
-    checkParams(id, callback);
+    checkParams(id.replace('_', '-'), callback);
     new Listbox({
-      id, parent, label, callback, values,
+      id: id.replace('_', '-'), parent, label, callback, values,
     });
   };
 }());
