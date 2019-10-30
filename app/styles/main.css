@@ -104,14 +104,10 @@ h2 {
   z-index: 0;
 }
 
-#restaurants-container {
-  margin: 0 10px;
-}
-
 /* ====================== Restaurant Listing ====================== */
 #restaurants-list {
   list-style: outside none none;
-  margin: 0 20px 20px 20px ;
+  margin: 0 15px 20px 15px ;
 }
 
 .card {
@@ -169,9 +165,7 @@ h2 {
 
 .listbox-container {
   display: grid;
-  grid-template-rows: 2;
-  grid-template-columns: 1;
-  width: 100%;
+  grid-template-columns: 1fr;
 }
 
 .listbox-label {
@@ -226,8 +220,7 @@ h2 {
     border-bottom: 1px solid #d9d9d9;
     border-top: 1px solid #fff;
     z-index: 3;
-    padding: 0 20px;
-    background-color: white;
+    padding: 0 15px;
 }
 
 #restaurant-name {
@@ -370,9 +363,45 @@ h2 {
 
 .review-text {
     padding: 0 25px 25px;
+    line-height: 1.6;
 }
 
 .star {
   font-size: 1.1rem;
   color: #ff572d;
+}
+
+@media screen and (min-width: 700px) and (max-width: 1049px){
+  .card-restaurant {
+    display: inline-block;
+    width: calc((100% - 15px)/2);
+  }
+
+  .card-restaurant:nth-of-type(odd) {
+    margin-right: 15px;
+  }
+}
+
+@media screen and (min-width: 1050px) and (max-width: 1399px) {
+  .card-restaurant {
+    display: inline-block;
+    width: calc((100% - 30px)/3);
+    margin-right: 15px;
+  }
+
+  .card-restaurant:nth-of-type(3n) {
+    margin-right: 0;
+  }
+}
+
+@media screen and (min-width: 1400px) {
+  .card-restaurant {
+    display: inline-block;
+    width: calc((100% - 45px)/4);
+    margin-right: 15px;
+  }
+
+  .card-restaurant:nth-of-type(4n) {
+    margin-right: 0;
+  }
 }

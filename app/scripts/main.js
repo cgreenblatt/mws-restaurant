@@ -1,3 +1,13 @@
+//if ('serviceWorker' in navigator) {
+/*navigator.serviceWorker.register('sw.js', { scope: '/' })
+.then((reg) => {
+// registration worked
+  console.log('Registration succeeded. Scope is ' + reg.scope);
+}).catch((error) => {
+// registration failed
+  console.log('Registration failed with ' + error);
+}); */
+
 window.addEventListener('DOMContentLoaded', () => {
   const router = {
     init() {
@@ -200,7 +210,7 @@ window.addEventListener('DOMContentLoaded', () => {
       return img;
     },
     getRestaurantLiElement(restaurant) {
-      const li = this.view.initElement({ tag: 'li', id: restaurant.id, className: 'card' });
+      const li = this.view.initElement({ tag: 'li', id: restaurant.id, classList: ['card', 'card-restaurant'] });
       li.appendChild(this.getImageElement(restaurant));
       this.view.initElement({ tag: 'h3', textContent: restaurant.name, appendTo: li });
       this.view.initElement({ tag: 'h4', textContent: restaurant.neighborhood, appendTo: li });
