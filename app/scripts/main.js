@@ -176,7 +176,7 @@ window.addEventListener('DOMContentLoaded', () => {
     },
     updateMap(restaurant) {
       this.updateMarkers([restaurant.id - 1]);
-      this.newMap.panTo([restaurant.latlng.lat, restaurant.latlng.lng]);
+      this.newMap.flyTo([restaurant.latlng.lat, restaurant.latlng.lng], 14);
     },
   };
 
@@ -286,10 +286,10 @@ window.addEventListener('DOMContentLoaded', () => {
       this.nameHeading = view.initElement({ tag: 'h2', id: 'restaurant-name', appendTo: this.detailsSection, tabindex: '0' });
       const col1 = view.initElement({ tag: 'div', id: 'details-col1', appendTo: this.detailsSection });
       this.image = view.initElement({ tag: 'img', classList: ['restaurant-img-d', 'restaurant-img'], appendTo: col1 });
+      this.cuisineHeading = view.initElement({ tag: 'h4', id: 'restaurant-cuisine', appendTo: col1 });
       const col2 = view.initElement({ tag: 'div', id: 'details-col2', appendTo: this.detailsSection });
       this.addressHeading = view.initElement({ tag: 'h4', id: 'restaurant-address', appendTo: col2 });
       this.hoursTable = view.initElement({ tag: 'table', id: 'restaurant-hours', appendTo: col2 });
-      this.cuisineHeading = view.initElement({ tag: 'h4', id: 'restaurant-cuisine', appendTo: this.detailsSection });
       this.initDays(view);
     },
     initDays(view) {
