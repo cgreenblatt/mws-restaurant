@@ -234,7 +234,7 @@ footer a:focus {
 
 #restaurant-address {
   font-family: arial, helvetica, sans-serif;
-  margin: 25px 0 10px 0;
+  margin: 20px 0 20px 0;
 }
 
 #restaurant-cuisine {
@@ -446,8 +446,11 @@ footer a:focus {
    }
 
    #restaurant-address, #restaurant-hours {
-     font-size: 1.1rem;
-     margin: 0 0 20px 0;
+     font-size: 1rem;
+   }
+
+   #restaurant-address {
+     margin-top: 0;
    }
 
    #reviews-heading {

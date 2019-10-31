@@ -318,8 +318,8 @@ window.addEventListener('DOMContentLoaded', () => {
       this.cuisineHeading.textContent = restaurant.cuisine_type;
       this.addressHeading.textContent = restaurant.address;
       Object.keys(this.days).forEach((d) => {
-        this.days[d].tdHours.textContent = restaurant.operating_hours[d]
-          ? restaurant.operating_hours[d].replace(/-/g, 'to')
+        this.days[d].tdHours.innerHTML = restaurant.operating_hours[d]
+          ? restaurant.operating_hours[d].replace(/-/g, 'to').replace(',', ',<br>')
           : '';
       });
       this.instantiateReviews(restaurant.reviews);
