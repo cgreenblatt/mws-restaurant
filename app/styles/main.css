@@ -47,6 +47,7 @@ h1 {
   font-weight: 200;
   text-transform: uppercase;
   text-align: center;
+  padding: 0 5px;
 }
 
 h2 {
@@ -259,7 +260,7 @@ footer a:focus {
 }
 
 .hours {
-  padding: 2px 0;
+  padding: 5px 0;
   color: #666;
 }
 
@@ -374,7 +375,7 @@ footer a:focus {
   #filter-options {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    margin: 15px 0;
+    margin-top: 25px;
     font-size: 1.1rem;
   }
 
@@ -400,19 +401,57 @@ footer a:focus {
 }
 
 @media screen and (min-width: 700px) {
+
   h1 {
     font-size: 1.9rem;
   }
+
+  #details-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  #restaurant-name {
+    grid-column-start: 1;
+    grid-column-end: 3;
+  }
+
+  #details-col1 {
+    grid-row-start: 2;
+    grid-row-end: 2;
+    grid-column-start: 1;
+    grid-column-end: 2;
+  }
+
+  #details-col2 {
+    padding-left: 20px;
+    grid-row-start: 2;
+    grid-row-end: 2;
+    grid-column-start: 2;
+    grid-column-end: 3;
+    align-self: center;
+    justify-self: center;
+  }
+
    #restaurant-name {
-     font-size: 1.7rem;
+     font-size: 1.6rem;
+     margin: 35px 0 20px 0;
    }
 
    #restaurant-cuisine {
      font-size: 1.2rem;
+     grid-column-start: 1;
+     grid-column-end: 3;
    }
 
    #restaurant-address, #restaurant-hours {
      font-size: 1.1rem;
+     margin: 0 0 20px 0;
+   }
+
+   #reviews-heading {
+     font-size: 1.8rem;
    }
 }
 
@@ -428,6 +467,10 @@ footer a:focus {
 
   #restaurant-cuisine {
     font-size: 1.5rem;
+  }
+
+  #restaurant-address, #restaurant-hours {
+    font-size: 1.4rem;
   }
 
   .card-restaurant {
@@ -487,19 +530,20 @@ footer a:focus {
   }
 
   #restaurant-cuisine {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
   }
 
   #restaurant-address {
-    font-size: 1.3rem;
+    font-size: 1.75rem;
+    margin-bottom: 50px;
   }
 
   #restaurant-hours {
-    font-size: 1.3rem;
+    font-size: 1.75rem;
   }
 
   #reviews-heading {
-    font-size: 2rem;
+    font-size: 2.2rem;
   }
 
   .reviewer {

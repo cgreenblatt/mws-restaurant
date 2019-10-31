@@ -284,12 +284,12 @@ window.addEventListener('DOMContentLoaded', () => {
     initDetailsSection(view) {
       this.detailsSection = view.initElement({ tag: 'section', id: 'details-container', appendTo: this.container });
       this.nameHeading = view.initElement({ tag: 'h2', id: 'restaurant-name', appendTo: this.detailsSection, tabindex: '0' });
-      this.image = view.initElement({
-        tag: 'img', classList: ['restaurant-img-d', 'restaurant-img'], appendTo: this.detailsSection,
-      });
+      const col1 = view.initElement({ tag: 'div', id: 'details-col1', appendTo: this.detailsSection });
+      this.image = view.initElement({ tag: 'img', classList: ['restaurant-img-d', 'restaurant-img'], appendTo: col1 });
+      const col2 = view.initElement({ tag: 'div', id: 'details-col2', appendTo: this.detailsSection });
+      this.addressHeading = view.initElement({ tag: 'h4', id: 'restaurant-address', appendTo: col2 });
+      this.hoursTable = view.initElement({ tag: 'table', id: 'restaurant-hours', appendTo: col2 });
       this.cuisineHeading = view.initElement({ tag: 'h4', id: 'restaurant-cuisine', appendTo: this.detailsSection });
-      this.addressHeading = view.initElement({ tag: 'h4', id: 'restaurant-address', appendTo: this.detailsSection });
-      this.hoursTable = view.initElement({ tag: 'table', id: 'restaurant-hours', appendTo: this.detailsSection });
       this.initDays(view);
     },
     initDays(view) {
