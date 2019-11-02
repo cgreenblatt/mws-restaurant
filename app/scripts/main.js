@@ -1,12 +1,17 @@
-//if ('serviceWorker' in navigator) {
-/*navigator.serviceWorker.register('sw.js', { scope: '/' })
-.then((reg) => {
-// registration worked
-  console.log('Registration succeeded. Scope is ' + reg.scope);
-}).catch((error) => {
-// registration failed
-  console.log('Registration failed with ' + error);
-}); */
+function registerSW() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js', { scope: '/' })
+    .then((reg) => {
+      // registration worked
+     console.log('Registration succeeded. Scope is ' + reg.scope);
+    }).catch((error) => {
+      // registration failed
+      console.log('Registration failed with ' + error);
+    });
+  }
+}
+
+registerSW();
 
 window.addEventListener('DOMContentLoaded', () => {
   const router = {
@@ -200,12 +205,12 @@ window.addEventListener('DOMContentLoaded', () => {
       return this.container;
     },
     getImageElement(restaurant) {
+      //TODO refactor
       const img = document.createElement('img');
       img.alt = restaurant.name;
       img.src = restaurant.imageURLs[1];
       img.srcset = restaurant.imageURLs.map((url) => `${url} ${url.split('-')[1]}w`).join(', ');
-      img.sizes = '(min-width: 700px) 45.5vw, (min-width: 1050px) 29.333vw, '
-        + '(min-width: 1400px) 21.25vw, (min-width: 1750px) 16.4vw';
+      img.sizes = '(max-width: 699px) 96vw, (min-width: 700px) 47vw, (min-width: 1050px) 30vw';
       img.className = 'restaurant-img';
       return img;
     },
@@ -506,6 +511,5 @@ window.addEventListener('DOMContentLoaded', () => {
       view.showHome();
     },
   };
-
   controller.init();
 });
