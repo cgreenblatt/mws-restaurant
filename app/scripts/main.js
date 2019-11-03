@@ -377,9 +377,11 @@ const view = {
   },
   initBreadcrumb() {
     const nav = this.initElement({ tag: 'nav' });
-    const breadcrumb = this.initElement({ tag: 'ul', className: 'breadcrumb-ul', appendTo: nav });
+    const breadcrumb = this.initElement({ tag: 'ol', className: 'breadcrumb-ul',
+      ariaLabel: 'breadcrumb', appendTo: nav });
     const home = this.initElement({
-      tag: 'li', className: 'breadcrumb-li', textContent: 'Home', appendTo: breadcrumb, tabindex: '0',
+      tag: 'li', className: 'breadcrumb-li', textContent: 'Home',
+      role: 'link', appendTo: breadcrumb, tabindex: '0',
     });
     home.addEventListener('click', () => {
       this.controller.viewHomeRequest();
@@ -422,6 +424,7 @@ const view = {
   },
   initElement: ({
     tag, id, className, classList, textContent, role, appendTo, tabindex,
+    ariaLabel,
   }) => {
     if (!tag) return null;
     const el = document.createElement(tag);
@@ -433,6 +436,7 @@ const view = {
     if (textContent) el.textContent = textContent;
     if (role) el.setAttribute('role', role);
     if (tabindex) el.setAttribute('tabindex', tabindex);
+    if (ariaLabel) el.setAttribute('ariaLabel', ariaLabel);
     if (appendTo) appendTo.appendChild(el);
     return el;
   },
