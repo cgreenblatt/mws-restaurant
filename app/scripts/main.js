@@ -508,8 +508,7 @@ const controller = {
  * @return A Promise that resolves when the service worker's state is 'activated'
  * from https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorker/onstatechange
  */
-const swReady = registration => {
-
+const swReady = (registration) => {
   // get service worker from registration object
   let serviceWorker;
   if (registration.installing) {
@@ -530,6 +529,7 @@ const swReady = registration => {
     serviceWorker.addEventListener('statechange', function(e) {
       checkState(e.target.state);
     });
+
     checkState(serviceWorker.state);
   });
 };
@@ -539,7 +539,7 @@ const swReady = registration => {
  * @return: A promise that resolves when the DOM content is loaded
  * from https://github.com/jakearchibald/svgomg/blob/master/src/js/page/utils.js#L7
  */
-const domReady = () => new Promise(resolve => {
+const domReady = () => new Promise((resolve) => {
   function checkState() {
     if (document.readyState !== 'loading') {
       resolve();
@@ -549,13 +549,21 @@ const domReady = () => new Promise(resolve => {
   checkState();
 });
 
-// register the service worker, then when the service worker is
+// if page not loaded via service worker, register the service worker,
+// then when the service worker is
 // activated and the DOM content is loaded start the controller
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js')
-    .then(swReady)
-    .then(domReady)
-    .then(() => { controller.init(); });
+  if (!navigator.serviceWorker.controller) {
+    navigator.serviceWorker.register('/sw.js')
+      .then(swReady)
+      .then(domReady)
+      .then(() => { controller.init(); });
+  } else {
+    navigator.serviceWorker.register('/sw.js');
+    document.addEventListener('DOMContentLoaded', () => {
+      controller.init();
+    });
+  }
 } else {
   document.addEventListener('DOMContentLoaded', () => {
     controller.init();
