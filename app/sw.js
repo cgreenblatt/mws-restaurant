@@ -1,4 +1,4 @@
-const mwsNewCache = 'mws-restaurant-4';
+const mwsNewCache = 'mws-restaurant-1';
 const resourcesToCache = [
   '/',
   '/index.html',

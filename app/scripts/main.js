@@ -549,7 +549,7 @@ const domReady = () => new Promise((resolve) => {
   checkState();
 });
 
-// if page not loaded via service worker, register the service worker,
+// if page not controlled by service worker, register the service worker,
 // then when the service worker is
 // activated and the DOM content is loaded start the controller
 if ('serviceWorker' in navigator) {
@@ -558,14 +558,11 @@ if ('serviceWorker' in navigator) {
       .then(swReady)
       .then(domReady)
       .then(() => { controller.init(); });
+// page controlled by service worker
   } else {
     navigator.serviceWorker.register('/sw.js');
-    document.addEventListener('DOMContentLoaded', () => {
-      controller.init();
-    });
+    domReady().then(() => controller.init());
   }
 } else {
-  document.addEventListener('DOMContentLoaded', () => {
-    controller.init();
-  });
+  domReady().then(() => controller.init());
 }
