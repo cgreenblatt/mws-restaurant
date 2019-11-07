@@ -458,7 +458,8 @@ const controller = {
         callback: this.showDetails.bind(this),
       },
     );
-    model.initData().then((data) => {
+    // return this promise from init
+    return model.initData().then((data) => {
       view.init(this, {
         coordinates: model.getMapCenterCoords(),
         restaurants: data,
@@ -499,6 +500,9 @@ const controller = {
   showHome() {
     view.showHome();
   },
+  swUpdateReady() {
+    console.log('controller got message sw update is ready');
+  },
 };
 
 /*
@@ -520,19 +524,41 @@ const swReady = (registration) => {
   }
 
   /* from https://github.com/jakearchibald/svgomg/blob/master/src/js/page/utils.js#L7 */
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     function checkState(state) {
       if (state === 'activated') {
         resolve(state);
       }
     }
-    serviceWorker.addEventListener('statechange', function(e) {
+    serviceWorker.addEventListener('statechange', (e) => {
       checkState(e.target.state);
     });
 
     checkState(serviceWorker.state);
   });
 };
+
+const swUpdateWaiting = (reg) => new Promise((resolve) => {
+
+  const trackInstallation = (sw) => {
+    sw.addEventListener('statechange', () => {
+      if (sw.state === 'installed') {
+        resolve();
+      }
+    });
+  };
+
+  if (reg.waiting) {
+    resolve();
+  }
+  if (reg.installing) {
+    trackInstallation(reg.installing);
+  } else {
+    reg.addEventListener('updatefound', () => {
+      trackInstallation(reg.installing);
+    });
+  }
+});
 
 /*
  * @description: Creates a promise that resolves when the DOM content is loaded
@@ -557,12 +583,28 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js')
       .then(swReady)
       .then(domReady)
-      .then(() => { controller.init(); });
-// page controlled by service worker
-  } else {
-    navigator.serviceWorker.register('/sw.js');
-    domReady().then(() => controller.init());
+      .then(() => controller.init()
+      .catch((error) => {
+        //TODO display error to user
+        console.log('An error occurred: ', error);
+      }));
+  } else { // page is controlled by service worker
+    const promises = [];
+    promises.push(navigator.serviceWorker.register('/sw.js').then(swUpdateWaiting));
+    promises.push(domReady().then(() => controller.init()));
+    // let controller know sw update is ready after controller.init is completed
+    Promise.all(promises)
+      .then(() => controller.swUpdateReady())
+      .catch((error) => {
+        //TODO display error to user
+        console.log('An error occurred: ', error);
+      });
   }
 } else {
-  domReady().then(() => controller.init());
+  domReady()
+    .then(() => controller.init())
+    .catch((error) => {
+    //TODO display error to user
+      console.log('An error occurred: ', error);
+    });
 }
