@@ -1,5 +1,5 @@
-const mwsNewCache = 'mws-restaurant-1';
-const resourcesToCache = [
+const mwsNewCache = 'mws-restaurant-2';
+const resourcesToTransfer = [
   '/',
   '/index.html',
   '/scripts/Listbox.js',
@@ -14,19 +14,19 @@ const resourcesToCache = [
   'https://unpkg.com/leaflet@1.3.1/dist/images/marker-shadow.png',
 ];
 
+//const resourcesToFetch = ['/images/1-700-medium.jpg'];
 const resourcesToFetch = [];
-
 const restaurantCount = 10;
 
-const getImagesToCache = async () => {
+const getImagesToTransfer = async () => {
   let response;
   const imageURLs = [
     '-350-small.jpg',
     '-700-medium.jpg',
     '-1050-large.jpg',
     '-1400-xlarge.jpg'
-  ]
-  const imagesToCache = [];
+  ];
+  const imagesToTransfer = [];
 
   try {
     let i;
@@ -34,15 +34,21 @@ const getImagesToCache = async () => {
     for (i = 0; i < imageURLs.length && !response; i += 1) {
       response = await caches.match(new Request(`/images/1${imageURLs[i]}`));
     }
+
+    // generate image URLs based on the image size in the cache
     i -= 1;
     if (response) {
       for (let j = 1; j <= restaurantCount; j += 1) {
-        imagesToCache.push(`/images/${j}${imageURLs[i]}`);
+        const image = `/images/${j}${imageURLs[i]}`;
+        // do not include images that have been fetched because they are new or changed
+        if (!resourcesToFetch.includes(image)) {
+          imagesToTransfer.push(image);
+        }
       }
     }
-    return imagesToCache;
+    return imagesToTransfer;
   } catch (error) {
-    return imagesToCache;
+    return imagesToTransfer;
   }
 };
 
@@ -54,15 +60,16 @@ self.addEventListener('install', (e) => {
       if (resourcesToFetch.length > 0) {
         promises.push(cache.addAll(resourcesToFetch));
       }
-      const imagesToCache = await getImagesToCache();
-      // transfer resources with no updates from older cache to newer cache
-      resourcesToCache.concat(imagesToCache).forEach(async (resource) => {
+      const imagesToTransfer = await getImagesToTransfer();
+
+      // Populate cache by first trying to transfer a resource,
+      // if the resource is not in a cache then fetch it
+      resourcesToTransfer.concat(imagesToTransfer).forEach(async (resource) => {
         const request = new Request(resource);
         let response = await caches.match(request);
-        if (response) {
+        if (response) { // if this resource is in a cache, transfer it to the new cache
           promises.push(cache.put(request, response));
-        } else {
-          // if request is not in cache, fetch it
+        } else { // resource not in cache, fetch it and put it in the new cache
           response = await fetch(request);
           promises.push(cache.put(request, response));
         }
@@ -85,15 +92,15 @@ self.addEventListener('activate', (e) => e.waitUntil(
 ));
 
 
-self.addEventListener('fetch', (e) =>
-  e.respondWith(caches.open(mwsNewCache).then((cache) =>
-    cache.match(e.request).then((cacheResponse) =>
-      cacheResponse || fetch(e.request).then((fetchResponse) => {
-      // cache requested resource that is not currently in the cache
+self.addEventListener('fetch', (e) => e.respondWith(caches.open(mwsNewCache)
+  .then((cache) => cache.match(e.request)
+    .then((cacheResponse) => cacheResponse || fetch(e.request)
+      .then((fetchResponse) => {
+        // cache requested resource that is not currently in the cache
         cache.put(e.request, fetchResponse.clone())
-        .catch((error) => {
-          console.log(`Unable to cache resource ${e.request.url}`, error);
-        });
+          .catch((error) => {
+            console.log(`Unable to cache resource ${e.request.url}`, error);
+          });
         return fetchResponse;
       })))
   .catch((error) => {
@@ -102,6 +109,5 @@ self.addEventListener('fetch', (e) =>
     if (e.request.url.includes('/browser-sync/socket.io/?EIO=3&transport=polling')) {
       return new Response();
     }
-    return new Response(`error occurred in fetch for ${e.request.url}`, error)
-  }))
-);
+    return new Response(`error occurred in fetch for ${e.request.url}`, error);
+  })));
