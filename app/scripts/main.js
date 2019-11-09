@@ -539,7 +539,6 @@ const swReady = (registration) => {
 };
 
 const swUpdateWaiting = (reg) => new Promise((resolve) => {
-
   const trackInstallation = (sw) => {
     sw.addEventListener('statechange', () => {
       if (sw.state === 'installed') {
@@ -575,36 +574,40 @@ const domReady = () => new Promise((resolve) => {
   checkState();
 });
 
-// if page not controlled by service worker, register the service worker,
-// then when the service worker is
-// activated and the DOM content is loaded start the controller
-if ('serviceWorker' in navigator) {
+
+const initApp = (registerServiceWorker = false) => {
+  if (!registerServiceWorker || !('serviceWorker' in navigator)) {
+    return domReady()
+      .then(() => controller.init())
+      .catch((error) => {
+      //TODO display error to user
+        console.log('An error occurred: ', error);
+      });
+  }
+
+  // if page not controlled by service worker, register the service worker,
+  // then when the service worker is
+  // activated and the DOM content is loaded start the controller
   if (!navigator.serviceWorker.controller) {
-    navigator.serviceWorker.register('/sw.js')
+    return navigator.serviceWorker.register('/sw.js')
       .then(swReady)
       .then(domReady)
-      .then(() => controller.init()
-      .catch((error) => {
-        //TODO display error to user
-        console.log('An error occurred: ', error);
-      }));
-  } else { // page is controlled by service worker
-    const promises = [];
-    promises.push(navigator.serviceWorker.register('/sw.js').then(swUpdateWaiting));
-    promises.push(domReady().then(() => controller.init()));
-    // let controller know sw update is ready after controller.init is completed
-    Promise.all(promises)
-      .then(() => controller.swUpdateReady())
+      .then(() => controller.init())
       .catch((error) => {
         //TODO display error to user
         console.log('An error occurred: ', error);
       });
-  }
-} else {
-  domReady()
-    .then(() => controller.init())
+  }  // page is controlled by service worker
+  const promises = [];
+  promises.push(navigator.serviceWorker.register('/sw.js').then(swUpdateWaiting));
+  promises.push(domReady().then(() => controller.init()));
+  // let controller know sw update is ready after controller.init is completed
+  return Promise.all(promises)
+    .then(() => controller.swUpdateReady())
     .catch((error) => {
-    //TODO display error to user
+      //TODO display error to user
       console.log('An error occurred: ', error);
     });
-}
+};
+
+initApp();
