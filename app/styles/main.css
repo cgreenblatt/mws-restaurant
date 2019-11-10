@@ -61,6 +61,7 @@ h2 {
 #maincontent {
   margin-top: 65px;
   flex-grow: 1;
+  position: relative;
 }
 
 footer {
@@ -377,16 +378,18 @@ footer a:focus {
 
 .alert {
   transition: all 1s;
-  position: sticky;
+  position: absolute;
   display: grid;
   grid-template-columns: 1fr;
-  margin: 10px 20px;
+  margin: 20px 25px;
   align-items: center;
   justify-content: center;
   background-color: #fff;
   height: 0;
   bottom: 0;
   opacity: 0;
+  overflow: hidden;
+  width: calc(100% - 50px)
 }
 
 .alert-show {
