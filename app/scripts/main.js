@@ -358,6 +358,31 @@ const detailsScreen = {
   },
 };
 
+const alert = {
+  init(controller) {
+    this.controller = controller;
+    this.alertModal = document.querySelector('.alert');
+    const button = document.getElementById('alert-button');
+    const close = this.alertModal.querySelector('.alert-close');
+    const closeHandler = this.closeHandler.bind(this);
+    close.addEventListener('click', closeHandler);
+    const buttonHandler = this.buttonHandler.bind(this);
+    button.addEventListener('click', buttonHandler);
+  },
+  hide() {
+    this.alertModal.classList.remove('alert-show');
+  },
+  show() {
+    this.alertModal.classList.add('alert-show');
+  },
+  buttonHandler() {
+    this.controller.getUpdatesRequest(true);
+  },
+  closeHandler() {
+    this.controller.getUpdatesRequest(false);
+  }
+};
+
 const view = {
   init(controller, initData) {
     const markerClickHandler = (event) => {
@@ -374,6 +399,7 @@ const view = {
     this.header = document.querySelector('header');
     this.main = document.querySelector('main');
     this.breadcrumb = this.initBreadcrumb();
+    alert.init(controller);
   },
   initBreadcrumb() {
     const nav = this.initElement({ tag: 'nav' });
@@ -421,6 +447,14 @@ const view = {
       this.appDiv.appendChild(this.homeScreen);
     }
     this.currentScreen = 'home';
+  },
+  showAlert() {
+    alert.show();
+    this.appDiv.classList.add('app-opacity');
+  },
+  hideAlert() {
+    alert.hide();
+    this.appDiv.classList.remove('app-opacity');
   },
   initElement: ({
     tag, id, className, classList, textContent, role, appendTo, tabindex,
@@ -500,8 +534,18 @@ const controller = {
   showHome() {
     view.showHome();
   },
-  swUpdateReady() {
-    console.log('controller got message sw update is ready');
+  swUpdateReady(sw) {
+    this.swUpdate = sw;
+    view.showAlert();
+  },
+  getUpdatesRequest(confirmed) {
+    view.hideAlert();
+    if (!confirmed) return;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      window.location.reload();
+    });
+    this.swUpdate.postMessage({ request: 'skipWaiting' });
+    this.swUpdate = undefined;
   },
 };
 
@@ -542,13 +586,13 @@ const swUpdateWaiting = (reg) => new Promise((resolve) => {
   const trackInstallation = (sw) => {
     sw.addEventListener('statechange', () => {
       if (sw.state === 'installed') {
-        resolve();
+        resolve(sw);
       }
     });
   };
 
   if (reg.waiting) {
-    resolve();
+    resolve(reg.waiting);
   }
   if (reg.installing) {
     trackInstallation(reg.installing);
@@ -603,11 +647,11 @@ const initApp = (registerServiceWorker = false) => {
   promises.push(domReady().then(() => controller.init()));
   // let controller know sw update is ready after controller.init is completed
   return Promise.all(promises)
-    .then(() => controller.swUpdateReady())
+    .then((results) => controller.swUpdateReady(results[0]))
     .catch((error) => {
       //TODO display error to user
       console.log('An error occurred: ', error);
     });
 };
 
-initApp();
+initApp(true);

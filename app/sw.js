@@ -1,4 +1,4 @@
-const mwsNewCache = 'mws-restaurant-2';
+const mwsNewCache = 'mws-restaurant-1';
 const resourcesToTransfer = [
   '/',
   '/index.html',
@@ -15,7 +15,7 @@ const resourcesToTransfer = [
 ];
 
 //const resourcesToFetch = ['/images/1-700-medium.jpg'];
-const resourcesToFetch = [];
+const resourcesToFetch = ['/styles/main.css'];
 const restaurantCount = 10;
 
 const getImagesToTransfer = async () => {
@@ -111,3 +111,9 @@ self.addEventListener('fetch', (e) => e.respondWith(caches.open(mwsNewCache)
     }
     return new Response(`error occurred in fetch for ${e.request.url}`, error);
   })));
+
+self.addEventListener('message', (event) => {
+  if (event.data.request === 'skipWaiting') {
+    self.skipWaiting();
+  }
+});
