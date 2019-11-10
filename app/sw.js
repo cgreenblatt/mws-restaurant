@@ -15,7 +15,8 @@ const resourcesToTransfer = [
 ];
 
 //const resourcesToFetch = ['/images/1-700-medium.jpg'];
-const resourcesToFetch = ['/styles/main.css'];
+//const resourcesToFetch = ['/styles/main.css'];
+const resourcesToFetch = [];
 const restaurantCount = 10;
 
 const getImagesToTransfer = async () => {

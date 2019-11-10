@@ -99,7 +99,7 @@ const model = {
 const map = {
   init(initData, appDiv, markerClickHandler, view) {
     this.mapSection = view.initElement({ tag: 'section', id: 'map-container' });
-    view.initElement({
+    this.mapDiv = view.initElement({
       tag: 'div', id: 'map', role: 'application', appendTo: this.mapSection,
     });
     appDiv.append(this.mapSection);
@@ -111,6 +111,9 @@ const map = {
   },
   fitBounds() {
     this.newMap.fitBounds(this.bounds);
+  },
+  focus() {
+    this.mapDiv.focus();
   },
   initMap: (coordinates) => {
     const newMap = L.map('map', {
@@ -361,26 +364,72 @@ const detailsScreen = {
 const alert = {
   init(controller) {
     this.controller = controller;
+    this.map = map;
     this.alertModal = document.querySelector('.alert');
-    const button = document.getElementById('alert-button');
-    const close = this.alertModal.querySelector('.alert-close');
-    const closeHandler = this.closeHandler.bind(this);
-    close.addEventListener('click', closeHandler);
-    const buttonHandler = this.buttonHandler.bind(this);
-    button.addEventListener('click', buttonHandler);
+    this.fetchButton = document.getElementById('alert-fetch-button');
+    this.closeButton = document.getElementById('alert-close-button');
+    this.closeButton.addEventListener('click', this.closeHandler.bind(this));
+    this.closeButton.addEventListener('keydown', this.closeKeyDownHandler.bind(this));
+    this.fetchButton.addEventListener('click', this.buttonHandler.bind(this));
+    this.fetchButton.addEventListener('keydown', this.buttonKeyDownHandler.bind(this));
   },
   hide() {
     this.alertModal.classList.remove('alert-show');
+    this.fetchButton.tabIndex = '-1';
+    this.closeButton.tabIndex = '-1';
   },
   show() {
     this.alertModal.classList.add('alert-show');
+    this.fetchButton.tabIndex = '0';
+    this.closeButton.tabIndex = '0';
+    this.fetchButton.focus();
   },
   buttonHandler() {
     this.controller.getUpdatesRequest(true);
   },
   closeHandler() {
     this.controller.getUpdatesRequest(false);
-  }
+  },
+  closeKeyDownHandler(event) {
+    switch (event.keyCode) {
+    case 13: // enter key pressed
+      event.preventDefault();
+      this.hide();
+      map.focus();
+      this.controller.getUpdatesRequest(false);
+      break;
+    case 9: // tab key pressed
+      if (event.shiftKey) {
+        event.preventDefault();
+        this.hide();
+        map.focus();
+        this.controller.getUpdatesRequest(false);
+      }
+      break;
+    default:
+    }
+  },
+  buttonKeyDownHandler(event) {
+    switch (event.keyCode) {
+    case 13: // enter key pressed
+      event.preventDefault();
+      this.hide();
+      map.focus();
+      this.controller.getUpdatesRequest(true);
+      break;
+    case 9: // tab key pressed
+      event.preventDefault();
+      if (!event.shiftKey) {
+        map.focus();
+        this.hide();
+        this.controller.getUpdatesRequest(false);
+        break;
+      }
+      this.closeButton.focus();
+      break;
+    default:
+    }
+  },
 };
 
 const view = {
