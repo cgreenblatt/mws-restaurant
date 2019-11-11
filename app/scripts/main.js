@@ -37,8 +37,8 @@ const model = {
         center: [40.722216, -73.987501],
       },
     }),
-  getRestaurantURL: (name) => `/${name.replace(/ /g, '_')}.html`,
-  getImageURLs: (id) => ['-350-small', '-700-medium', '-1050-large', '-1400-xlarge'].map((size) => `/images/${id}${size}.jpg`),
+  getRestaurantURL: (name) => `/images/${name.replace(/ /g, '_')}.html`,
+  getImageURLs: (id) => ['-350-small', '-700-medium', '-1050-large', '-1400-xlarge'].map((size) => `images/${id}${size}.jpg`),
   initData() {
     return fetch(this.getURL())
       .then((response) => {
@@ -368,10 +368,10 @@ const alert = {
     this.alertModal = document.querySelector('.alert');
     this.fetchButton = document.getElementById('alert-fetch-button');
     this.closeButton = document.getElementById('alert-close-button');
-    this.closeButton.addEventListener('click', this.closeHandler.bind(this));
+    this.closeButton.addEventListener('click', this.closeButtonHandler.bind(this));
     this.closeButton.addEventListener('keydown', this.closeKeyDownHandler.bind(this));
-    this.fetchButton.addEventListener('click', this.buttonHandler.bind(this));
-    this.fetchButton.addEventListener('keydown', this.buttonKeyDownHandler.bind(this));
+    this.fetchButton.addEventListener('click', this.fetchButtonHandler.bind(this));
+    this.fetchButton.addEventListener('keydown', this.fetchKeyDownHandler.bind(this));
   },
   hide() {
     this.alertModal.classList.remove('alert-show');
@@ -384,48 +384,38 @@ const alert = {
     this.closeButton.tabIndex = '0';
     this.fetchButton.focus();
   },
-  buttonHandler() {
+  fetchButtonHandler() {
     this.controller.getUpdatesRequest(true);
   },
-  closeHandler() {
+  closeButtonHandler() {
     this.controller.getUpdatesRequest(false);
   },
-  closeKeyDownHandler(event) {
+  fetchKeyDownHandler(event) {
     switch (event.keyCode) {
     case 13: // enter key pressed
       event.preventDefault();
-      this.hide();
-      map.focus();
-      this.controller.getUpdatesRequest(false);
+      this.controller.getUpdatesRequest(true);
       break;
     case 9: // tab key pressed
-      if (event.shiftKey) {
+      if (!event.shiftKey) { // no shift key
         event.preventDefault();
-        this.hide();
-        map.focus();
         this.controller.getUpdatesRequest(false);
       }
       break;
     default:
     }
   },
-  buttonKeyDownHandler(event) {
+  closeKeyDownHandler(event) {
     switch (event.keyCode) {
     case 13: // enter key pressed
       event.preventDefault();
-      this.hide();
-      map.focus();
-      this.controller.getUpdatesRequest(true);
+      this.controller.getUpdatesRequest(false);
       break;
     case 9: // tab key pressed
-      event.preventDefault();
-      if (!event.shiftKey) {
-        map.focus();
-        this.hide();
+      if (event.shiftKey) { // with shift key, going out of alert
+        event.preventDefault();
         this.controller.getUpdatesRequest(false);
-        break;
       }
-      this.closeButton.focus();
       break;
     default:
     }
@@ -501,9 +491,12 @@ const view = {
     alert.show();
     this.appDiv.classList.add('app-opacity');
   },
-  hideAlert() {
+  hideAlert(focusMap=true) {
     alert.hide();
     this.appDiv.classList.remove('app-opacity');
+    if (focusMap) {
+      map.focus();
+    }
   },
   initElement: ({
     tag, id, className, classList, textContent, role, appendTo, tabindex,
@@ -588,8 +581,11 @@ const controller = {
     view.showAlert();
   },
   getUpdatesRequest(confirmed) {
-    view.hideAlert();
-    if (!confirmed) return;
+    if (!confirmed) {
+      view.hideAlert(true);
+      return;
+    }
+    view.hideAlert(false);
     navigator.serviceWorker.addEventListener('controllerchange', () => {
       window.location.reload();
     });
@@ -682,7 +678,7 @@ const initApp = (registerServiceWorker = false) => {
   // then when the service worker is
   // activated and the DOM content is loaded start the controller
   if (!navigator.serviceWorker.controller) {
-    return navigator.serviceWorker.register('/sw.js')
+    return navigator.serviceWorker.register('sw.js')
       .then(swReady)
       .then(domReady)
       .then(() => controller.init())
@@ -692,7 +688,7 @@ const initApp = (registerServiceWorker = false) => {
       });
   }  // page is controlled by service worker
   const promises = [];
-  promises.push(navigator.serviceWorker.register('/sw.js').then(swUpdateWaiting));
+  promises.push(navigator.serviceWorker.register('sw.js').then(swUpdateWaiting));
   promises.push(domReady().then(() => controller.init()));
   // let controller know sw update is ready after controller.init is completed
   return Promise.all(promises)
