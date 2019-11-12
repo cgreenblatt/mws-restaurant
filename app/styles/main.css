@@ -97,6 +97,10 @@ footer a:focus {
   outline-offset: -5px;
 }
 
+button:hover {
+  cursor: pointer;
+}
+
 /* ====================== Map ====================== */
 #map {
   height: 400px;
@@ -168,7 +172,6 @@ footer a:focus {
     letter-spacing: 4px;
     border-width: 0;
     border-top: solid 2px #333;
-    cursor: pointer;
 }
 
 .details-button:hover {
@@ -191,10 +194,6 @@ footer a:focus {
   padding: 5px 10px;
   border-radius: 5px;
   background-color: #d9d9d9;
-}
-
-.listbox-button:hover {
-  cursor: pointer;
 }
 
 .listbox-ul-container {
