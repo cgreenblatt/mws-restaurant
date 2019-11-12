@@ -228,10 +228,13 @@ button:hover {
 
 /* restaurant details styling */
 #details-container, #reviews-container {
-    border-bottom: 1px solid #d9d9d9;
     border-top: 1px solid #fff;
     z-index: 3;
     padding: 0 15px;
+}
+
+#details-container {
+  border-bottom: 1px solid #d9d9d9;
 }
 
 #restaurant-name {
