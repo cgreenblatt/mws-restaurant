@@ -100,7 +100,8 @@ const map = {
   init(initData, appDiv, markerClickHandler, view) {
     this.mapSection = view.initElement({ tag: 'section', id: 'map-container' });
     this.mapDiv = view.initElement({
-      tag: 'div', id: 'map', role: 'application', appendTo: this.mapSection,
+      tag: 'div', id: 'map', attributes: [{ name: 'role', value: 'application' }],
+      appendTo: this.mapSection,
     });
     appDiv.append(this.mapSection);
     this.newMap = this.initMap(initData.coordinates);
@@ -276,7 +277,8 @@ const detailsScreen = {
   },
   initDetailsSection(view) {
     this.detailsSection = view.initElement({ tag: 'section', id: 'details-container', appendTo: this.container });
-    this.nameHeading = view.initElement({ tag: 'h2', id: 'restaurant-name', appendTo: this.detailsSection, tabindex: '0' });
+    this.nameHeading = view.initElement({ tag: 'h2', id: 'restaurant-name', appendTo: this.detailsSection,
+      attributes: [{ name: 'tabindex', value: '0' }]});
     const col1 = view.initElement({ tag: 'div', id: 'details-col1', appendTo: this.detailsSection });
     this.image = view.initElement({ tag: 'img', classList: ['restaurant-img-d', 'restaurant-img'], appendTo: col1 });
     this.cuisineHeading = view.initElement({ tag: 'h4', id: 'restaurant-cuisine', appendTo: col1 });
@@ -443,10 +445,11 @@ const view = {
   initBreadcrumb() {
     const nav = this.initElement({ tag: 'nav' });
     const breadcrumb = this.initElement({ tag: 'ol', className: 'breadcrumb-ul',
-      ariaLabel: 'breadcrumb', appendTo: nav });
+      attributes: [{ name: 'ariaLabel', value: 'breadcrumb' }], appendTo: nav });
     const home = this.initElement({
       tag: 'li', className: 'breadcrumb-li', textContent: 'Home',
-      role: 'link', appendTo: breadcrumb, tabindex: '0',
+      attributes: [{ name: 'role', value: 'link' }, { name: 'tabindex', value: '0' }],
+      appendTo: breadcrumb,
     });
     home.addEventListener('click', () => {
       this.controller.viewHomeRequest();
@@ -499,8 +502,7 @@ const view = {
     }
   },
   initElement: ({
-    tag, id, className, classList, textContent, role, appendTo, tabindex,
-    ariaLabel,
+    tag, id, className, classList, textContent, attributes=[], appendTo
   }) => {
     if (!tag) return null;
     const el = document.createElement(tag);
@@ -510,12 +512,13 @@ const view = {
       classList.forEach((c) => el.classList.add(c));
     }
     if (textContent) el.textContent = textContent;
-    if (role) el.setAttribute('role', role);
-    if (tabindex) el.setAttribute('tabindex', tabindex);
-    if (ariaLabel) el.setAttribute('ariaLabel', ariaLabel);
+    attributes.forEach(attr => {
+      el.setAttribute(attr.name, attr.value)
+    })
     if (appendTo) appendTo.appendChild(el);
     return el;
   },
+
 };
 
 const controller = {
@@ -699,4 +702,4 @@ const initApp = (registerServiceWorker = false) => {
     });
 };
 
-initApp(true);
+initApp();
