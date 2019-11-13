@@ -194,12 +194,11 @@ const homeScreen = {
     return this.container;
   },
   getImageElement(restaurant) {
-    //TODO refactor
     const img = document.createElement('img');
     img.alt = restaurant.name;
     img.src = restaurant.imageURLs[1];
-    img.srcset = restaurant.imageURLs.map((url) => `${url} ${url.split('-')[1]}w`).join(', ');
-    img.sizes = '(max-width: 699px) 96vw, (min-width: 700px) 47vw, (min-width: 1050px) 30vw';
+    img.srcset = this.view.getImageSrcset(restaurant);
+    img.sizes = '(max-width: 699px) cacl(100vw - 30px), (min-width: 700px) calc(50vw - 15px), (min-width: 1050px) calc((100vw - 70px)/3), (min-width: 1400px) calc((100vw - 110px)/3)';
     img.className = 'restaurant-img';
     return img;
   },
@@ -281,6 +280,7 @@ const detailsScreen = {
       attributes: [{ name: 'tabindex', value: '0' }]});
     const col1 = view.initElement({ tag: 'div', id: 'details-col1', appendTo: this.detailsSection });
     this.image = view.initElement({ tag: 'img', classList: ['restaurant-img-d', 'restaurant-img'], appendTo: col1 });
+    this.image.sizes = '(max-width: 699px) calc(100vw - 30px), (min-width: 700px) calc(50vw - 15px)';
     this.cuisineHeading = view.initElement({ tag: 'h4', id: 'restaurant-cuisine', appendTo: col1 });
     const col2 = view.initElement({ tag: 'div', id: 'details-col2', appendTo: this.detailsSection });
     this.addressHeading = view.initElement({ tag: 'h4', id: 'restaurant-address', appendTo: col2 });
@@ -310,6 +310,7 @@ const detailsScreen = {
   instantiateValues(restaurant) {
     this.nameHeading.textContent = restaurant.name;
     this.image.src = restaurant.imageURLs[1];
+    this.image.srcset = this.view.getImageSrcset(restaurant);
     this.cuisineHeading.textContent = restaurant.cuisine_type;
     this.addressHeading.textContent = restaurant.address;
     Object.keys(this.days).forEach((d) => {
@@ -518,7 +519,9 @@ const view = {
     if (appendTo) appendTo.appendChild(el);
     return el;
   },
-
+  getImageSrcset(restaurant) {
+    return restaurant.imageURLs.map((url) => `${url} ${url.split('-')[1]}w`).join(', ');
+  },
 };
 
 const controller = {
